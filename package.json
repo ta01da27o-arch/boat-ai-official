@@ -1,24 +1,13 @@
 {
   "name": "boat-ai-official",
   "version": "1.0.0",
-  "description": "ボートレース公式サイトから出走表データを取得するスクリプト",
-  "main": "index.js",
   "type": "module",
   "scripts": {
     "fetch-links": "node server/fetchBoatraceLinks.js",
     "fetch-details": "node server/fetchBoatraceDetails.js"
   },
   "dependencies": {
-    "node-fetch": "^3.3.2",
-    "cheerio": "^1.0.0-rc.12"
-  },
-  "keywords": [
-    "boatrace",
-    "scraping",
-    "出走表",
-    "競艇",
-    "official"
-  ],
-  "author": "Boat AI",
-  "license": "MIT"
+    "cheerio": "^1.0.0-rc.12",
+    "node-fetch": "^3.3.2"
+  }
 }
