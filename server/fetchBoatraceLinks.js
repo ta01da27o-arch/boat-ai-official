@@ -1,4 +1,3 @@
-// server/fetchBoatraceLinks.js
 import fs from "fs";
 import path from "path";
 import fetch from "node-fetch";
@@ -28,9 +27,11 @@ try {
     }
   });
 
-  if (!fs.existsSync("data")) fs.mkdirSync("data");
+  // server/data ディレクトリを確実に作成
+  const dataDir = path.resolve("server/data");
+  if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir, { recursive: true });
 
-  const filePath = path.resolve("data/today_links.json");
+  const filePath = path.join(dataDir, "today_links.json");
   fs.writeFileSync(filePath, JSON.stringify(links, null, 2), "utf-8");
   console.log(`✅ 出走表URL一覧を保存しました: ${filePath}`);
 } catch (err) {

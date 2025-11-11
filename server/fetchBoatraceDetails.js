@@ -1,10 +1,9 @@
-// server/fetchBoatraceDetails.js
 import fs from "fs";
 import path from "path";
 import fetch from "node-fetch";
 import * as cheerio from "cheerio";
 
-const LINKS_PATH = path.resolve("data/today_links.json");
+const LINKS_PATH = path.resolve("server/data/today_links.json");
 
 if (!fs.existsSync(LINKS_PATH)) {
   console.error("⚠️ 出走表URL一覧(today_links.json)が見つかりません。fetch-linksを先に実行してください。");
@@ -22,11 +21,11 @@ for (const link of links) {
     const html = await res.text();
     const $ = cheerio.load(html);
 
-    // 最新 HTML 構造に合わせて出走表を抽出
+    // 出走表データを取得
     const races = [];
     $("table.race_table tr").each((_, tr) => {
       const tds = $(tr).find("td");
-      if (tds.length === 0) return; // ヘッダー行などスキップ
+      if (tds.length === 0) return;
 
       const raceData = {
         boat: $(tds[0]).text().trim(),
@@ -52,7 +51,11 @@ for (const link of links) {
   }
 }
 
-if (!fs.existsSync("data")) fs.mkdirSync("data");
-const DATA_PATH = path.resolve("data/data.json");
+// server/data ディレクトリを確実に作成
+const dataDir = path.resolve("server/data");
+if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir, { recursive: true });
+
+const DATA_PATH = path.join(dataDir, "data.json");
 fs.writeFileSync(DATA_PATH, JSON.stringify(results, null, 2), "utf-8");
+
 console.log(`📄 全場データ保存完了: ${DATA_PATH}`);
