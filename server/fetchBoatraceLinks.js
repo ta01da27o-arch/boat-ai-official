@@ -16,33 +16,28 @@ try {
 
   const links = [];
 
-  // ✅ 最新のHTML構造に対応
-  $("ul.m-mainList li a").each((_, a) => {
+  // 各場リンクを抽出（2025年版構造対応）
+  $("ul.raceList li a").each((_, a) => {
     const href = $(a).attr("href");
-    const name =
-      $(a).find("span.is-venue").text().trim() ||
-      $(a).text().trim();
-
+    const name = $(a).find("span").text().trim() || $(a).text().trim();
     if (href && name) {
-      const fullUrl = href.startsWith("http")
-        ? href
-        : BASE_URL + href;
-      links.push({ name, url: fullUrl });
+      links.push({
+        name,
+        url: href.startsWith("http") ? href : BASE_URL + href,
+      });
     }
   });
 
-  if (links.length === 0) {
-    console.warn("⚠️ 出走表リンクが見つかりませんでした。HTML構造変更の可能性があります。");
-  } else {
-    console.log(`✅ ${links.length} 件のリンクを取得しました。`);
-  }
+  if (!fs.existsSync("server/data")) fs.mkdirSync("server/data", { recursive: true });
 
-  const dataDir = path.resolve("server/data");
-  if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir, { recursive: true });
-
-  const filePath = path.join(dataDir, "today_links.json");
+  const filePath = path.resolve("server/data/today_links.json");
   fs.writeFileSync(filePath, JSON.stringify(links, null, 2), "utf-8");
-  console.log(`💾 出走表URL一覧を保存しました: ${filePath}`);
+
+  if (links.length === 0) {
+    console.warn("⚠️ 出走表リンクが見つかりませんでした。HTML構造が変更された可能性があります。");
+  } else {
+    console.log(`✅ 出走表URL一覧(${links.length}件)を保存しました: ${filePath}`);
+  }
 } catch (err) {
   console.error("❌ エラー:", err.message);
   process.exit(1);
