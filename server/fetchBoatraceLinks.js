@@ -1,3 +1,4 @@
+// server/fetchBoatraceLinks.js
 import fs from "fs";
 import path from "path";
 import fetch from "node-fetch";
@@ -15,25 +16,33 @@ try {
 
   const links = [];
 
-  // 各レース場リンクを最新 HTML 構造に合わせて取得
-  $("div.m-box_list li a").each((_, a) => {
+  // ✅ 最新のHTML構造に対応
+  $("ul.m-mainList li a").each((_, a) => {
     const href = $(a).attr("href");
-    const name = $(a).find("span").text().trim() || $(a).text().trim();
+    const name =
+      $(a).find("span.is-venue").text().trim() ||
+      $(a).text().trim();
+
     if (href && name) {
-      links.push({
-        name,
-        url: href.startsWith("http") ? href : BASE_URL + href,
-      });
+      const fullUrl = href.startsWith("http")
+        ? href
+        : BASE_URL + href;
+      links.push({ name, url: fullUrl });
     }
   });
 
-  // server/data ディレクトリを確実に作成
+  if (links.length === 0) {
+    console.warn("⚠️ 出走表リンクが見つかりませんでした。HTML構造変更の可能性があります。");
+  } else {
+    console.log(`✅ ${links.length} 件のリンクを取得しました。`);
+  }
+
   const dataDir = path.resolve("server/data");
   if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir, { recursive: true });
 
   const filePath = path.join(dataDir, "today_links.json");
   fs.writeFileSync(filePath, JSON.stringify(links, null, 2), "utf-8");
-  console.log(`✅ 出走表URL一覧を保存しました: ${filePath}`);
+  console.log(`💾 出走表URL一覧を保存しました: ${filePath}`);
 } catch (err) {
   console.error("❌ エラー:", err.message);
   process.exit(1);
