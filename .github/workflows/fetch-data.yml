@@ -1,0 +1,49 @@
+name: Fetch Boatrace Official Data
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 1 * * *'  # 毎日 日本時間10時に自動実行（UTC1時）
+
+permissions:
+  contents: write
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Fetch race links
+        run: npm run fetch-links
+
+      - name: Fetch race details
+        run: npm run fetch-details
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: race-data
+          path: server/data/*.json
+
+      - name: Commit and push data.json
+        run: |
+          if [ -f "server/data/data.json" ]; then
+            git config --global user.name "github-actions[bot]"
+            git config --global user.email "actions@github.com"
+            git add server/data/data.json
+            git commit -m "🕓 Auto-update race data ($(date '+%Y-%m-%d'))" || echo "No changes to commit"
+            git push origin main
+          else
+            echo "⚠️ data.json が見つかりません。commitをスキップします。"
+          fi
