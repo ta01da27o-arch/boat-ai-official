@@ -1,6 +1,6 @@
 // server/fetchBoatraceDetails.js
 import fs from "fs";
-import cheerio from "cheerio";
+import * as cheerio from "cheerio";
 import fetch from "node-fetch";
 
 const LINKS_PATH = "./server/data/today_links.json";
@@ -42,7 +42,7 @@ for (const { venueCode, raceUrl, resultUrl } of links) {
   };
 
   try {
-    // 出走表
+    // 出走表ページ
     const raceHtml = await safeFetch(raceUrl);
     const $ = cheerio.load(raceHtml);
 
@@ -62,7 +62,7 @@ for (const { venueCode, raceUrl, resultUrl } of links) {
       }
     });
 
-    // 結果
+    // 結果ページ
     const resultHtml = await safeFetch(resultUrl);
     const $$ = cheerio.load(resultHtml);
     $$("div.table1 table.is-tableFixed tbody tr").each((i, el) => {
@@ -81,7 +81,7 @@ for (const { venueCode, raceUrl, resultUrl } of links) {
     console.log(`✅ ${venueCode}: 出走表(${venueData.races.length})件 / 結果(${venueData.results.length})件`);
     results.push(venueData);
 
-    // 1場ごとに少し待機（GitHub制限対策）
+    // GitHub制限対策（連続アクセス防止）
     await new Promise(r => setTimeout(r, 1500));
 
   } catch (err) {
