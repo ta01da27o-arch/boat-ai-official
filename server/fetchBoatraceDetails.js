@@ -30,42 +30,43 @@ async function safeFetch(url, retries = 3) {
   return "";
 }
 
-for (const [i, { venueCode, raceUrl, resultUrl }] of links.entries()) {
-  const venue = { venueCode, title: "", races: [], results: [] };
+for (const [i, { venueCode, name, raceUrl, resultUrl }] of links.entries()) {
+  const venue = { venueCode, name, races: [], results: [] };
 
   try {
-    // 出走表取得
+    // 🏁 出走表取得
     const raceHtml = await safeFetch(raceUrl);
     if (raceHtml) {
       const $ = cheerio.load(raceHtml);
-      venue.title = $("h2.heading1_title, h3.title").first().text().trim() || "不明";
 
-      $("section#race_list table tbody tr").each((_, el) => {
+      // 出走表（table1内）
+      $("div.table1 table tbody tr").each((_, el) => {
         const tds = $(el).find("td");
-        if (tds.length > 3) {
+        if (tds.length >= 5) {
           venue.races.push({
-            lane: $(tds[0]).text().trim(),
-            name: $(tds[1]).text().trim(),
+            race: $(tds[0]).text().trim(),
+            racer: $(tds[1]).text().trim(),
             branch: $(tds[2]).text().trim(),
             class: $(tds[3]).text().trim(),
-            st: $(tds[4]).text().trim()
+            st: $(tds[4]).text().trim(),
           });
         }
       });
     }
 
-    // 結果取得
+    // 🏆 結果取得
     const resultHtml = await safeFetch(resultUrl);
     if (resultHtml) {
       const $$ = cheerio.load(resultHtml);
-      $$("#race_result table tbody tr").each((_, el) => {
+
+      $$("div.table1 table tbody tr").each((_, el) => {
         const tds = $$(el).find("td");
-        if (tds.length > 3) {
+        if (tds.length >= 4) {
           venue.results.push({
             order: $$(tds[0]).text().trim(),
-            name: $$(tds[1]).text().trim(),
+            racer: $$(tds[1]).text().trim(),
             branch: $$(tds[2]).text().trim(),
-            time: $$(tds[3]).text().trim()
+            time: $$(tds[3]).text().trim(),
           });
         }
       });
@@ -79,8 +80,8 @@ for (const [i, { venueCode, raceUrl, resultUrl }] of links.entries()) {
     console.error(`❌ ${venueCode} 取得失敗: ${e.message}`);
   }
 
-  await new Promise(r => setTimeout(r, 1000));
+  await new Promise((r) => setTimeout(r, 1200));
 }
 
-fs.writeFileSync(OUTPUT_PATH, JSON.stringify(allData, null, 2));
+fs.writeFileSync(OUTPUT_PATH, JSON.stringify(allData, null, 2), "utf-8");
 console.log(`📄 データ保存完了: ${OUTPUT_PATH}`);
