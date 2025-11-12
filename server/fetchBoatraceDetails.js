@@ -5,104 +5,82 @@ import fetch from "node-fetch";
 const LINKS_PATH = "./server/data/today_links.json";
 const OUTPUT_PATH = "./server/data/data.json";
 
-if (!fs.existsSync("./server/data")) fs.mkdirSync("./server/data", { recursive: true });
 if (!fs.existsSync(LINKS_PATH)) {
   console.error("❌ today_links.json が見つかりません。先に fetch-links を実行してください。");
   process.exit(1);
 }
 
 const links = JSON.parse(fs.readFileSync(LINKS_PATH, "utf-8"));
-const results = [];
+const allData = [];
 
 console.log("🚀 各場の出走表・結果データを取得中...");
 
-// 再試行付きフェッチ
 async function safeFetch(url, retries = 3) {
   for (let i = 0; i < retries; i++) {
     try {
-      const res = await fetch(url, { timeout: 20000 });
+      const res = await fetch(url, { timeout: 15000 });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const html = await res.text();
-      if (html.includes("<html")) return html;
+      const text = await res.text();
+      if (text.includes("<html")) return text;
     } catch (err) {
       console.warn(`⚠️ Fetch失敗(${i + 1}/${retries}): ${url} → ${err.message}`);
-      await new Promise(r => setTimeout(r, 2000));
+      await new Promise(r => setTimeout(r, 1500));
     }
   }
-  throw new Error(`3回リトライしても取得できません: ${url}`);
+  return "";
 }
 
-// メイン処理
-for (const [index, { venueCode, raceUrl, resultUrl }] of links.entries()) {
-  const venueData = {
-    venueCode,
-    date: new Date().toISOString().split("T")[0],
-    title: "",
-    races: [],
-    results: []
-  };
+for (const [i, { venueCode, raceUrl, resultUrl }] of links.entries()) {
+  const venue = { venueCode, title: "", races: [], results: [] };
 
   try {
+    // 出走表取得
     const raceHtml = await safeFetch(raceUrl);
-    const $ = cheerio.load(raceHtml);
+    if (raceHtml) {
+      const $ = cheerio.load(raceHtml);
+      venue.title = $("h2.heading1_title, h3.title").first().text().trim() || "不明";
 
-    // タイトル（レース名）
-    const raceTitle =
-      $("h2.heading1_title").text().trim() ||
-      $("h3.title").text().trim() ||
-      $("title").text().trim();
-    venueData.title = raceTitle || "不明";
+      $("section#race_list table tbody tr").each((_, el) => {
+        const tds = $(el).find("td");
+        if (tds.length > 3) {
+          venue.races.push({
+            lane: $(tds[0]).text().trim(),
+            name: $(tds[1]).text().trim(),
+            branch: $(tds[2]).text().trim(),
+            class: $(tds[3]).text().trim(),
+            st: $(tds[4]).text().trim()
+          });
+        }
+      });
+    }
 
-    // 出走表テーブル（新旧両対応）
-    const raceTable = $("table.is-tableFixed")
-      .add("table.table1-res")
-      .add("table.table1");
-
-    raceTable.find("tbody tr").each((i, el) => {
-      const cols = $(el).find("td");
-      if (cols.length >= 5) {
-        venueData.races.push({
-          lane: $(cols[0]).text().trim(),
-          name: $(cols[1]).text().trim(),
-          branch: $(cols[2]).text().trim(),
-          class: $(cols[3]).text().trim(),
-          st: $(cols[4]).text().trim()
-        });
-      }
-    });
-
-    // 結果ページ
+    // 結果取得
     const resultHtml = await safeFetch(resultUrl);
-    const $$ = cheerio.load(resultHtml);
-    const resultTable = $$("table.is-tableFixed")
-      .add("table.table1-res")
-      .add("table.table1");
-
-    resultTable.find("tbody tr").each((i, el) => {
-      const cols = $$(el).find("td");
-      if (cols.length >= 5) {
-        venueData.results.push({
-          order: $$(cols[0]).text().trim(),
-          name: $$(cols[1]).text().trim(),
-          branch: $$(cols[2]).text().trim(),
-          class: $$(cols[3]).text().trim(),
-          time: $$(cols[4]).text().trim()
-        });
-      }
-    });
+    if (resultHtml) {
+      const $$ = cheerio.load(resultHtml);
+      $$("#race_result table tbody tr").each((_, el) => {
+        const tds = $$(el).find("td");
+        if (tds.length > 3) {
+          venue.results.push({
+            order: $$(tds[0]).text().trim(),
+            name: $$(tds[1]).text().trim(),
+            branch: $$(tds[2]).text().trim(),
+            time: $$(tds[3]).text().trim()
+          });
+        }
+      });
+    }
 
     console.log(
-      `✅ ${String(index + 1).padStart(2, "0")}: 出走表(${venueData.races.length})件 / 結果(${venueData.results.length})件`
+      `✅ ${String(i + 1).padStart(2, "0")}: 出走表(${venue.races.length})件 / 結果(${venue.results.length})件`
     );
-
-    results.push(venueData);
-    await new Promise(r => setTimeout(r, 1500)); // アクセス間隔
-
-  } catch (err) {
-    console.error(`❌ ${venueCode} 取得失敗: ${err.message}`);
+    allData.push(venue);
+  } catch (e) {
+    console.error(`❌ ${venueCode} 取得失敗: ${e.message}`);
   }
+
+  await new Promise(r => setTimeout(r, 1000));
 }
 
-// 保存
-fs.writeFileSync(OUTPUT_PATH, JSON.stringify(results, null, 2), "utf-8");
+fs.writeFileSync(OUTPUT_PATH, JSON.stringify(allData, null, 2));
 console.log(`📄 データ保存完了: ${OUTPUT_PATH}`);
