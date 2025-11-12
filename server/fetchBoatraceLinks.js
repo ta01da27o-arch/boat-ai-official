@@ -16,10 +16,10 @@ try {
 
   const links = [];
 
-  // 各場リンクを抽出（2025年版構造対応）
-  $("ul.raceList li a").each((_, a) => {
+  // ✅ 最新構造対応：テーブル内の各 a タグをすべて取得
+  $("div.table1 table tbody tr td a").each((_, a) => {
     const href = $(a).attr("href");
-    const name = $(a).find("span").text().trim() || $(a).text().trim();
+    const name = $(a).text().trim();
     if (href && name) {
       links.push({
         name,
@@ -34,7 +34,7 @@ try {
   fs.writeFileSync(filePath, JSON.stringify(links, null, 2), "utf-8");
 
   if (links.length === 0) {
-    console.warn("⚠️ 出走表リンクが見つかりませんでした。HTML構造が変更された可能性があります。");
+    console.warn("⚠️ 出走表リンクが見つかりませんでした。HTML構造がさらに変更された可能性があります。");
   } else {
     console.log(`✅ 出走表URL一覧(${links.length}件)を保存しました: ${filePath}`);
   }
