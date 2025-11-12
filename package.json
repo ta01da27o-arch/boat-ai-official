@@ -5,7 +5,8 @@
   "scripts": {
     "fetch-links": "node server/fetchBoatraceLinks.js",
     "fetch-details": "node server/fetchBoatraceDetails.js",
-    "fetch-all": "npm run fetch-links && npm run fetch-details && node server/verifyData.js"
+    "verify": "node server/verifyData.js",
+    "fetch-all": "npm run fetch-links && npm run fetch-details && npm run verify"
   },
   "dependencies": {
     "cheerio": "^1.0.0-rc.12",
