@@ -1,0 +1,22 @@
+name: Fetch Boatrace Data
+on:
+  workflow_dispatch:
+
+jobs:
+  fetch-data:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install deps
+        run: npm install
+      - name: Run fetch
+        run: npm run fetch-all
+      - name: Upload data
+        uses: actions/upload-artifact@v4
+        with:
+          name: race-data
+          path: server/data
