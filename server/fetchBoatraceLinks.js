@@ -1,57 +1,32 @@
-// server/fetchBoatraceLinks.js
 import fs from "fs";
-import path from "path";
 import fetch from "node-fetch";
-import * as cheerio from "cheerio";
 
-const BASE_URL = "https://www.boatrace.jp";
-const TODAY_URL = `${BASE_URL}/owpc/pc/race/index`;
+const today = new Date();
+const yyyy = today.getFullYear();
+const mm = String(today.getMonth() + 1).padStart(2, "0");
+const dd = String(today.getDate()).padStart(2, "0");
+const dateStr = `${yyyy}${mm}${dd}`;
+
+const VENUES = [
+  "01","02","03","04","05","06","07","08","09","10","11","12",
+  "13","14","15","16","17","18","19","20","21","22","23","24"
+];
+
+const baseRaceUrl = "https://www.boatrace.jp/owpc/pc/race/raceindex?jcd=";
+const baseResultUrl = "https://www.boatrace.jp/owpc/pc/race/raceresult?jcd=";
+
+const links = [];
 
 console.log("🚀 本日の出走表・結果URL一覧を取得中...");
 
-try {
-  const res = await fetch(TODAY_URL);
-  const html = await res.text();
-  const $ = cheerio.load(html);
-
-  const links = [];
-
-  $("a").each((_, a) => {
-    const href = $(a).attr("href");
-    const text = $(a).text().trim();
-
-    if (!href) return;
-
-    // 出走表ページ
-    if (href.includes("/raceindex?jcd=") && href.includes("&hd=")) {
-      links.push({
-        type: "race",
-        name: text || "出走表",
-        url: href.startsWith("http") ? href : BASE_URL + href,
-      });
-    }
-
-    // 結果ページ
-    if (href.includes("/raceresult?jcd=") && href.includes("&hd=")) {
-      links.push({
-        type: "result",
-        name: text || "結果",
-        url: href.startsWith("http") ? href : BASE_URL + href,
-      });
-    }
+for (const jcd of VENUES) {
+  links.push({
+    venueCode: jcd,
+    raceUrl: `${baseRaceUrl}${jcd}&hd=${dateStr}`,
+    resultUrl: `${baseResultUrl}${jcd}&hd=${dateStr}`
   });
-
-  // 重複削除
-  const unique = Array.from(
-    new Map(links.map((l) => [l.url, l])).values()
-  );
-
-  if (!fs.existsSync("server/data")) fs.mkdirSync("server/data", { recursive: true });
-  const filePath = path.resolve("server/data/today_links.json");
-  fs.writeFileSync(filePath, JSON.stringify(unique, null, 2), "utf-8");
-
-  console.log(`✅ 出走表・結果URLを保存しました (${unique.length}件): ${filePath}`);
-} catch (err) {
-  console.error("❌ エラー:", err.message);
-  process.exit(1);
 }
+
+const outputPath = "./server/data/today_links.json";
+fs.writeFileSync(outputPath, JSON.stringify(links, null, 2));
+console.log(`✅ 出走表・結果URLを保存しました (${links.length}件): ${outputPath}`);
