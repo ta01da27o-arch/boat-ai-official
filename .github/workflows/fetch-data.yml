@@ -1,30 +1,21 @@
-name: Fetch Boatrace Data
+name: Fetch Boat Race Data
 
 on:
-  workflow_dispatch:
+  workflow_dispatch:  # 手動実行可能
 
 jobs:
   fetch:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v3
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v3
         with:
-          node-version: "20"
+          node-version: 20
 
-      - name: Install dependencies
+      - name: Install Dependencies
         run: npm install
 
-      - name: Fetch racecards
+      - name: Fetch Racecards & Verify
         run: npm run fetch-all
-
-      - name: Commit data
-        run: |
-          git config --global user.email "github-actions@github.com"
-          git config --global user.name "github-actions"
-          git add server/data/racecards.json
-          git commit -m "Update racecards.json [auto]" || echo "No changes"
-          git push
