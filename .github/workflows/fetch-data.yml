@@ -1,4 +1,4 @@
-name: Fetch Boatrace Data
+name: Fetch Boat Race Data
 
 on:
   workflow_dispatch:
@@ -6,18 +6,11 @@ on:
 jobs:
   fetch:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v3
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
         with:
-          node-version: 20
-
-      - name: Install dependencies
-        run: npm install
-
-      - name: Run data fetch
-        run: npm run fetch-all
+          node-version: '20'
+      - run: npm install
+      - run: npm run fetch-all
