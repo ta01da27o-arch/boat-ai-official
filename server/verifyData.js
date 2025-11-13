@@ -3,7 +3,7 @@ import fs from "fs";
 const PATH = "./server/data/racecards.json";
 
 if (!fs.existsSync(PATH)) {
-  console.error("❌ racecards.json が存在しません。fetchを先に実行してください。");
+  console.error("❌ racecards.json が存在しません。");
   process.exit(1);
 }
 
