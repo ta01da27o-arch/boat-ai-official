@@ -3,14 +3,10 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "fetch-links": "node server/fetchBoatraceLinks.js",
-    "fetch-details": "node server/fetchBoatraceDetails.js",
-    "verify": "node server/verifyData.js",
-    "fetch-all": "npm run fetch-links && npm run fetch-details && npm run verify"
+    "fetch-all": "node server/fetchBoatraceRacecard.js && node server/verifyData.js",
+    "verify": "node server/verifyData.js"
   },
   "dependencies": {
-    "@playwright/test": "^1.48.2",
-    "cheerio": "^1.0.0-rc.12",
     "node-fetch": "^3.3.2"
   }
 }
