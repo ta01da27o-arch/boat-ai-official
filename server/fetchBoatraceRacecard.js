@@ -23,31 +23,34 @@ async function fetchRacecard(venueCode) {
 
     const $ = cheerio.load(html);
 
-    const title = $("title").text().trim();
-    const raceTables = $(".table1.is-tableFixed__3rdadd").toArray();
-    if (raceTables.length === 0) {
+    // 各レースセクション（12R）を抽出
+    const raceSections = $(".race_list").toArray();
+    if (raceSections.length === 0) {
       console.warn(`⚠️ ${venueCode}: 出走表なし`);
       return null;
     }
 
-    const races = raceTables.map((table, idx) => {
-      const rows = $(table).find("tbody tr").toArray();
-      const boats = rows.map(row => {
-        const cols = $(row).find("td").toArray();
-        return {
-          lane: $(cols[0]).text().trim(),
-          name: $(cols[2]).text().trim(),
-          st: $(cols[5]).text().trim(),
-        };
-      });
-      return {
-        raceNo: idx + 1,
-        boats,
-      };
+    const races = raceSections.map((section, idx) => {
+      const raceNo = idx + 1;
+      const boats = [];
+
+      $(section)
+        .find("table.is-tableFixed__3rdadd tbody tr")
+        .each((_, row) => {
+          const cols = $(row).find("td");
+          const lane = $(cols[0]).text().trim();
+          const name = $(cols[1]).find(".is-fs12").text().trim();
+          const st = $(cols[5]).text().trim();
+          if (lane && name) {
+            boats.push({ lane, name, st });
+          }
+        });
+
+      return { raceNo, boats };
     });
 
     console.log(`✅ ${venueCode}: 出走表(${races.length})件`);
-    return { venueCode, title, races };
+    return { venueCode, races };
 
   } catch (e) {
     console.error(`❌ ${venueCode} 取得失敗: ${e.message}`);
@@ -56,10 +59,11 @@ async function fetchRacecard(venueCode) {
 }
 
 (async () => {
+  console.log(`🚀 ${TODAY} の出走表データを取得中...`);
   for (const code of VENUES) {
     const data = await fetchRacecard(code);
     if (data) allData.push(data);
-    await new Promise(r => setTimeout(r, 800)); // 負荷軽減
+    await new Promise(r => setTimeout(r, 800)); // サーバ負荷軽減
   }
 
   fs.writeFileSync(OUTPUT_PATH, JSON.stringify(allData, null, 2));
