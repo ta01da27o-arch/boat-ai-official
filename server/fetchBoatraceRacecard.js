@@ -1,56 +1,61 @@
 import fs from "fs";
-import * as cheerio from "cheerio";
 import fetch from "node-fetch";
 
-const TODAY = new Date().toISOString().slice(0, 10).replace(/-/g, "");
-const VENUE_CODES = Array.from({ length: 24 }, (_, i) => String(i + 1).padStart(2, "0"));
 const OUTPUT_PATH = "./server/data/racecards.json";
+
+const BASE_URL = "https://www.boatrace.jp/owpc/pc/race/racelist"; // JSON APIのURL（例）
+const TODAY = new Date().toISOString().slice(0, 10).replace(/-/g, "");
+
+const VENUES = [
+  "01","02","03","04","05","06","07","08","09","10",
+  "11","12","13","14","15","16","17","18","19","20",
+  "21","22","23","24"
+];
 
 const allData = [];
 
-async function fetchRacecard(url) {
+async function fetchRacecard(venueCode) {
+  const url = `${BASE_URL}?jcd=${venueCode}&hd=${TODAY}&type=json`;
   try {
-    const res = await fetch(url, { timeout: 15000 });
-    if (!res.ok) return null;
-    const html = await res.text();
-    return html.includes("<html") ? html : null;
-  } catch {
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const json = await res.json();
+    if (!json.races || json.races.length === 0) {
+      console.warn(`⚠️ ${venueCode}: 出走表なし`);
+      return null;
+    }
+
+    const venue = {
+      venueCode,
+      title: json.venueName || `場コード${venueCode}`,
+      races: json.races.map(r => ({
+        raceNo: r.raceNo,
+        startTime: r.startTime,
+        boats: r.boats.map(b => ({
+          lane: b.lane,
+          name: b.name,
+          class: b.class,
+          st: b.st
+        }))
+      }))
+    };
+
+    console.log(`✅ ${venueCode}: 出走表(${venue.races.length})件`);
+    return venue;
+
+  } catch (e) {
+    console.error(`❌ ${venueCode} 取得失敗: ${e.message}`);
     return null;
   }
 }
 
-console.log(`🚀 ${TODAY} の出走表データを取得中...`);
-
-for (const code of VENUE_CODES) {
-  const url = `https://www.boatrace.jp/owpc/pc/race/racelist?jcd=${code}&hd=${TODAY}`;
-  console.log(`🌊 取得中: ${url}`);
-
-  const html = await fetchRacecard(url);
-  if (!html) {
-    console.warn(`⚠️ ${code}: 出走表なし`);
-    continue;
+(async () => {
+  for (const code of VENUES) {
+    const data = await fetchRacecard(code);
+    if (data) allData.push(data);
+    await new Promise(r => setTimeout(r, 500)); // 連続アクセス防止
   }
 
-  const $ = cheerio.load(html);
-  const title = $("h2.heading1_title, h3.title").first().text().trim() || `場${code}`;
-  const races = [];
-
-  $("section#race_list table tbody tr").each((_, el) => {
-    const tds = $(el).find("td");
-    if (tds.length > 3) {
-      races.push({
-        lane: $(tds[0]).text().trim(),
-        name: $(tds[1]).text().trim(),
-        branch: $(tds[2]).text().trim(),
-        class: $(tds[3]).text().trim(),
-        st: $(tds[4]).text().trim()
-      });
-    }
-  });
-
-  allData.push({ venueCode: code, title, races });
-  console.log(`✅ ${code}: 出走表(${races.length})件`);
-}
-
-fs.writeFileSync(OUTPUT_PATH, JSON.stringify(allData, null, 2));
-console.log(`📄 出走表データ保存完了: ${OUTPUT_PATH}`);
+  fs.writeFileSync(OUTPUT_PATH, JSON.stringify(allData, null, 2));
+  console.log(`📄 出走表データ保存完了: ${OUTPUT_PATH}`);
+})();
