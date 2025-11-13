@@ -1,23 +1,16 @@
 import fs from "fs";
 
-const PATH = "./server/data/data.json";
+const PATH = "./server/data/racecards.json";
 
 if (!fs.existsSync(PATH)) {
-  console.error("❌ data.json が見つかりません。");
+  console.error("❌ racecards.json が見つかりません。");
   process.exit(1);
 }
 
 const data = JSON.parse(fs.readFileSync(PATH, "utf-8"));
-let raceCount = 0;
-let resultCount = 0;
+const total = data.reduce((sum, v) => sum + v.races.length, 0);
 
-for (const d of data) {
-  raceCount += d.races.length;
-  resultCount += d.results.length;
-}
-
-console.log("✅ 取得結果確認中...");
-console.log(`📊 総データ: ${data.length}場分`);
-console.log(`🏁 出走表合計: ${raceCount}件`);
-console.log(`🏆 結果合計: ${resultCount}件`);
+console.log("✅ 出走表確認結果:");
+console.log(`📊 場数: ${data.length}`);
+console.log(`🏁 総レース数: ${total}`);
 console.log("✅ 処理完了");
