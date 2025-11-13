@@ -9,6 +9,7 @@
     "fetch-all": "npm run fetch-links && npm run fetch-details && npm run verify"
   },
   "dependencies": {
+    "@playwright/test": "^1.48.2",
     "cheerio": "^1.0.0-rc.12",
     "node-fetch": "^3.3.2"
   }
