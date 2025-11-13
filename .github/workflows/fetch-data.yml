@@ -1,4 +1,4 @@
-name: Fetch Boatrace Racecards
+name: Fetch Boatrace Data
 
 on:
   workflow_dispatch:
@@ -6,25 +6,18 @@ on:
 jobs:
   fetch:
     runs-on: ubuntu-latest
+
     steps:
-      - name: 📥 リポジトリを取得
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: 🧰 Nodeをセットアップ
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
 
-      - name: 📦 依存関係をインストール
+      - name: Install dependencies
         run: npm install
 
-      - name: 🏁 出走表を取得
+      - name: Run data fetch
         run: npm run fetch-all
-
-      - name: 💾 結果を保存（コミット）
-        run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git add server/data/racecards.json
-          git commit -m "Update racecards.json ($(date '+%Y-%m-%d %H:%M:%S'))" || echo "No changes"
-          git push
