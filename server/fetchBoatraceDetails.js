@@ -1,6 +1,6 @@
 import fs from "fs";
+import { chromium } from "@playwright/test";
 import * as cheerio from "cheerio";
-import fetch from "node-fetch";
 
 const LINKS_PATH = "./server/data/today_links.json";
 const OUTPUT_PATH = "./server/data/data.json";
@@ -13,34 +13,24 @@ if (!fs.existsSync(LINKS_PATH)) {
 const links = JSON.parse(fs.readFileSync(LINKS_PATH, "utf-8"));
 const allData = [];
 
-console.log("🚀 各場の出走表・結果データを取得中...");
+console.log("🚀 Playwrightで各場の出走表・結果データを取得中...");
 
-async function safeFetch(url, retries = 3) {
-  for (let i = 0; i < retries; i++) {
-    try {
-      const res = await fetch(url, { timeout: 15000 });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const text = await res.text();
-      if (text.includes("<html")) return text;
-    } catch (err) {
-      console.warn(`⚠️ Fetch失敗(${i + 1}/${retries}): ${url} → ${err.message}`);
-      await new Promise(r => setTimeout(r, 1500));
-    }
-  }
-  return "";
-}
+const browser = await chromium.launch({ headless: true });
+const page = await browser.newPage();
 
 for (const [i, { venueCode, name, raceUrl, resultUrl }] of links.entries()) {
   const venue = { venueCode, name, races: [], results: [] };
 
   try {
-    // 🏁 出走表取得
-    const raceHtml = await safeFetch(raceUrl);
-    if (raceHtml) {
-      const $ = cheerio.load(raceHtml);
+    // === 出走表 ===
+    if (raceUrl) {
+      await page.goto(raceUrl, { waitUntil: "domcontentloaded", timeout: 30000 });
+      await page.waitForTimeout(2500);
 
-      // 出走表（table1内）
-      $("div.table1 table tbody tr").each((_, el) => {
+      const html = await page.content();
+      const $ = cheerio.load(html);
+
+      $("table tbody tr").each((_, el) => {
         const tds = $(el).find("td");
         if (tds.length >= 5) {
           venue.races.push({
@@ -54,19 +44,22 @@ for (const [i, { venueCode, name, raceUrl, resultUrl }] of links.entries()) {
       });
     }
 
-    // 🏆 結果取得
-    const resultHtml = await safeFetch(resultUrl);
-    if (resultHtml) {
-      const $$ = cheerio.load(resultHtml);
+    // === 結果 ===
+    if (resultUrl) {
+      await page.goto(resultUrl, { waitUntil: "domcontentloaded", timeout: 30000 });
+      await page.waitForTimeout(2500);
 
-      $$("div.table1 table tbody tr").each((_, el) => {
-        const tds = $$(el).find("td");
+      const html = await page.content();
+      const $ = cheerio.load(html);
+
+      $("table tbody tr").each((_, el) => {
+        const tds = $(el).find("td");
         if (tds.length >= 4) {
           venue.results.push({
-            order: $$(tds[0]).text().trim(),
-            racer: $$(tds[1]).text().trim(),
-            branch: $$(tds[2]).text().trim(),
-            time: $$(tds[3]).text().trim(),
+            order: $(tds[0]).text().trim(),
+            racer: $(tds[1]).text().trim(),
+            branch: $(tds[2]).text().trim(),
+            time: $(tds[3]).text().trim(),
           });
         }
       });
@@ -75,13 +68,13 @@ for (const [i, { venueCode, name, raceUrl, resultUrl }] of links.entries()) {
     console.log(
       `✅ ${String(i + 1).padStart(2, "0")}: 出走表(${venue.races.length})件 / 結果(${venue.results.length})件`
     );
-    allData.push(venue);
-  } catch (e) {
-    console.error(`❌ ${venueCode} 取得失敗: ${e.message}`);
-  }
 
-  await new Promise((r) => setTimeout(r, 1200));
+    allData.push(venue);
+  } catch (err) {
+    console.error(`❌ ${venueCode} (${name}) 取得失敗: ${err.message}`);
+  }
 }
 
+await browser.close();
 fs.writeFileSync(OUTPUT_PATH, JSON.stringify(allData, null, 2), "utf-8");
 console.log(`📄 データ保存完了: ${OUTPUT_PATH}`);
