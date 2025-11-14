@@ -1,4 +1,6 @@
-// fetch_today.js
+// server/fetch_today.js
+// 本日のレース一覧ページ → racelist → 各レース → 選手データ取得
+
 import fs from "fs";
 import fetch from "node-fetch";
 import * as cheerio from "cheerio";
@@ -9,103 +11,122 @@ const MM = String(TODAY.getMonth() + 1).padStart(2, "0");
 const DD = String(TODAY.getDate()).padStart(2, "0");
 const DATE = `${YYYY}${MM}${DD}`;
 
-// 開催場API（JSON or XML）
-const HOLD_API = `https://www.boatrace.jp/owpc/pc/race/json/heats?hd=${DATE}`;
+const INDEX_URL = `https://www.boatrace.jp/owpc/pc/race/index?hd=${DATE}`;
 
-console.log(`🚀 開催場API取得: ${HOLD_API}`);
+console.log(`🚀 本日のレース一覧を取得中: ${INDEX_URL}`);
 
-async function fetchToday() {
-  let apiText;
-
+async function fetchHTML(url) {
   try {
-    apiText = await fetch(HOLD_API).then(r => r.text());
-  } catch (err) {
-    console.log("❌ API取得通信エラー:", err.message);
-    return;
+    const res = await fetch(url);
+    return await res.text();
+  } catch (e) {
+    console.log("❌ fetch失敗:", url, e.message);
+    return null;
   }
+}
 
-  let heats = [];
+function parseRaceListUrls(html) {
+  const $ = cheerio.load(html);
+  const urls = [];
 
-  // -----------------------------
-  // 判定：JSON か XML か
-  // -----------------------------
-  if (apiText.trim().startsWith("{")) {
-    // JSON開催
-    try {
-      const json = JSON.parse(apiText);
-      heats = json.heats || [];
-      console.log(`🎯 開催場( JSON ): ${heats.length} 場`);
-    } catch (err) {
-      console.log("❌ JSON解析エラー:", err.message);
-      return;
+  $(".table1 tbody tr").each((i, el) => {
+    const a = $(el).find("a");
+    if (!a.length) return;
+
+    const href = a.attr("href");
+    if (!href) return;
+
+    if (href.includes("racelist")) {
+      const full = "https://www.boatrace.jp" + href;
+      urls.push(full);
     }
-  } else {
-    // XML → 本日開催なし
-    console.log("⚠️ 本日は開催がありません（APIがXMLを返しました）");
-    heats = [];
-  }
+  });
 
-  if (heats.length === 0) {
-    console.log("📌 今日はレースなし → 取得処理をスキップします");
-    
-    fs.writeFileSync("./server/data/racecards.json", JSON.stringify([], null, 2));
-    console.log("📄 空データを保存しました");
-    return;
-  }
+  return urls;
+}
 
-  // -----------------------------
-  // 開催あり → 出走表URL生成
-  // -----------------------------
-  const raceUrls = [];
-  for (const h of heats) {
-    const jcd = h.jcd;
-    for (let rno = 1; rno <= 12; rno++) {
-      raceUrls.push(
-        `https://www.boatrace.jp/owpc/pc/race/racelist?rno=${rno}&jcd=${jcd}&hd=${DATE}`
-      );
+function parseRaceLinks(html) {
+  const $ = cheerio.load(html);
+  const list = [];
+
+  $(".race_table1 tbody tr").each((i, el) => {
+    const a = $(el).find("a");
+    if (!a.length) return;
+
+    const href = a.attr("href");
+    if (!href) return;
+
+    if (href.includes("race?")) {
+      list.push("https://www.boatrace.jp/owpc/pc/race/" + href);
     }
-  }
+  });
 
-  console.log(`📌 出走表URL: ${raceUrls.length} 件`);
+  return list;
+}
+
+function parseRaceDetail(html) {
+  const $ = cheerio.load(html);
+  const rows = [];
+
+  $(".table1 tbody tr").each((i, tr) => {
+    const tds = $(tr).find("td").map((i, td) =>
+      $(td).text().trim()
+    ).get();
+
+    if (tds.length >= 8) {
+      rows.push({
+        waku: tds[0],
+        name: tds[1],
+        class: tds[2],
+        st: tds[3],
+        fl: tds[4],
+        nat_rate: tds[5],
+        local_rate: tds[6],
+        motor_rate: tds[7]
+      });
+    }
+  });
+
+  return rows;
+}
+
+async function main() {
+  const indexHTML = await fetchHTML(INDEX_URL);
+  if (!indexHTML) return;
+
+  const listUrls = parseRaceListUrls(indexHTML);
+
+  console.log(`✅ racelist取得: ${listUrls.length}件`);
 
   const result = [];
 
-  for (const url of raceUrls) {
-    console.log("🌊 取得中:", url);
+  for (const listUrl of listUrls) {
+    console.log("🌊 racelist取得中:", listUrl);
 
-    try {
-      const html = await fetch(url).then(r => r.text());
-      const $ = cheerio.load(html);
+    const listHTML = await fetchHTML(listUrl);
+    if (!listHTML) continue;
 
-      if ($(".table1").length === 0) continue;
+    const raceUrls = parseRaceLinks(listHTML);
 
-      const rows = [];
+    console.log(`   ↳ Rリンク取得: ${raceUrls.length}件`);
 
-      $(".table1 tbody tr").each((i, row) => {
-        const tds = $(row).find("td");
-        if (tds.length < 8) return;
+    for (const raceUrl of raceUrls) {
+      console.log("     🏁 レース取得:", raceUrl);
 
-        rows.push({
-          lane: $(tds[0]).text().trim(),
-          name: $(tds[1]).text().trim(),
-          class: $(tds[2]).text().trim(),
-          avg_st: $(tds[3]).text().trim(),
-          f_l: $(tds[4]).text().trim(),
-          win_rate: $(tds[5]).text().trim(),
-          local_win_rate: $(tds[6]).text().trim(),
-          motor_win_rate: $(tds[7]).text().trim(),
-        });
+      const html = await fetchHTML(raceUrl);
+      if (!html) continue;
+
+      const rows = parseRaceDetail(html);
+
+      result.push({
+        url: raceUrl,
+        rows
       });
-
-      result.push({ url, rows });
-
-    } catch (err) {
-      console.log("⚠️ 出走表取得エラー:", err.message);
     }
   }
 
   fs.writeFileSync("./server/data/racecards.json", JSON.stringify(result, null, 2));
-  console.log("📄 出走表保存完了");
+  console.log("📄 データ保存完了: server/data/racecards.json");
 }
 
-fetchToday();
+main();
