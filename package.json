@@ -1,13 +1,12 @@
 {
   "name": "boat-ai-official",
   "version": "1.0.0",
-  "description": "ボートレース出走表取得アプリ（私的利用）",
   "type": "module",
+  "dependencies": {
+    "cheerio": "^1.0.0-rc.12",
+    "node-fetch": "^2.6.7"
+  },
   "scripts": {
     "fetch-all": "node server/fetch_today.js && node server/verifyData.js"
-  },
-  "dependencies": {
-    "cheerio": "1.0.0-rc.12",
-    "node-fetch": "^3.3.2"
   }
 }
