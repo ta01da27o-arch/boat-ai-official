@@ -9,45 +9,67 @@ const MM = String(TODAY.getMonth() + 1).padStart(2, "0");
 const DD = String(TODAY.getDate()).padStart(2, "0");
 const DATE = `${YYYY}${MM}${DD}`;
 
-// ★ 本日の開催場 API
+// 開催場API（JSON or XML）
 const HOLD_API = `https://www.boatrace.jp/owpc/pc/race/json/heats?hd=${DATE}`;
 
-console.log(`🚀 本日の開催場APIを取得中: ${HOLD_API}`);
+console.log(`🚀 開催場API取得: ${HOLD_API}`);
 
 async function fetchToday() {
-  let heatsJson;
+  let apiText;
 
   try {
-    heatsJson = await fetch(HOLD_API).then(r => r.json());
+    apiText = await fetch(HOLD_API).then(r => r.text());
   } catch (err) {
-    console.log("❌ 開催場API取得失敗:", err.message);
+    console.log("❌ API取得通信エラー:", err.message);
     return;
   }
 
-  const heats = heatsJson.heats || [];
-  console.log(`🎯 本日開催場: ${heats.length}場`);
+  let heats = [];
+
+  // -----------------------------
+  // 判定：JSON か XML か
+  // -----------------------------
+  if (apiText.trim().startsWith("{")) {
+    // JSON開催
+    try {
+      const json = JSON.parse(apiText);
+      heats = json.heats || [];
+      console.log(`🎯 開催場( JSON ): ${heats.length} 場`);
+    } catch (err) {
+      console.log("❌ JSON解析エラー:", err.message);
+      return;
+    }
+  } else {
+    // XML → 本日開催なし
+    console.log("⚠️ 本日は開催がありません（APIがXMLを返しました）");
+    heats = [];
+  }
 
   if (heats.length === 0) {
-    console.log("⚠️ 本日の開催場がありません");
+    console.log("📌 今日はレースなし → 取得処理をスキップします");
+    
+    fs.writeFileSync("./server/data/racecards.json", JSON.stringify([], null, 2));
+    console.log("📄 空データを保存しました");
     return;
   }
 
-  // 出走表URL生成
+  // -----------------------------
+  // 開催あり → 出走表URL生成
+  // -----------------------------
   const raceUrls = [];
   for (const h of heats) {
     const jcd = h.jcd;
-
     for (let rno = 1; rno <= 12; rno++) {
-      const url = `https://www.boatrace.jp/owpc/pc/race/racelist?rno=${rno}&jcd=${jcd}&hd=${DATE}`;
-      raceUrls.push(url);
+      raceUrls.push(
+        `https://www.boatrace.jp/owpc/pc/race/racelist?rno=${rno}&jcd=${jcd}&hd=${DATE}`
+      );
     }
   }
 
-  console.log(`✅ 出走表URL生成: ${raceUrls.length}件`);
+  console.log(`📌 出走表URL: ${raceUrls.length} 件`);
 
   const result = [];
 
-  // 取得開始
   for (const url of raceUrls) {
     console.log("🌊 取得中:", url);
 
@@ -76,14 +98,14 @@ async function fetchToday() {
       });
 
       result.push({ url, rows });
+
     } catch (err) {
-      console.log("⚠️ 取得失敗:", err.message);
+      console.log("⚠️ 出走表取得エラー:", err.message);
     }
   }
 
-  const savePath = "./server/data/racecards.json";
-  fs.writeFileSync(savePath, JSON.stringify(result, null, 2));
-  console.log(`📄 出走表保存完了: ${savePath}`);
+  fs.writeFileSync("./server/data/racecards.json", JSON.stringify(result, null, 2));
+  console.log("📄 出走表保存完了");
 }
 
 fetchToday();
