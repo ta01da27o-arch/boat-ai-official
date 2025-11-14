@@ -1,20 +1,33 @@
 name: Fetch Boat Race Data
 
 on:
-  workflow_dispatch: {} # 手動実行
+  workflow_dispatch:
   schedule:
-    - cron: '0 3 * * *' # 毎日 03:00 JST
+    - cron: "0 23 * * *"   # JST 8:00 = UTC 23:00
 
 jobs:
   fetch:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v3
-      - name: Setup Node.js
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup Node
         uses: actions/setup-node@v3
         with:
-          node-version: '20'
-      - name: Install dependencies
+          node-version: "18"
+
+      - name: Install
         run: npm install
-      - name: Fetch race data
+
+      - name: Fetch Data
         run: npm run fetch-all
+
+      - name: Commit & Push
+        run: |
+          git config --local user.name "GitHub Actions"
+          git config --local user.email "actions@github.com"
+          git add .
+          git commit -m "Update racecards" || exit 0
+          git push
