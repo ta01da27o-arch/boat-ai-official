@@ -1,92 +1,94 @@
 import fs from "fs";
 import fetch from "node-fetch";
-import cheerio from "cheerio";
+import { load } from "cheerio";
 
-const TODAY = new Date();
-const yyyy = TODAY.getFullYear();
-const mm = String(TODAY.getMonth() + 1).padStart(2, "0");
-const dd = String(TODAY.getDate()).padStart(2, "0");
-const dateStr = `${yyyy}${mm}${dd}`;
+// 今日の日付
+const d = new Date();
+const yyyy = d.getFullYear();
+const mm = String(d.getMonth() + 1).padStart(2, "0");
+const dd = String(d.getDate()).padStart(2, "0");
+const today = `${yyyy}${mm}${dd}`;
 
-const INDEX_URL = "https://www.boatrace.jp/owpc/pc/main";
+// 保存先
+const OUTPUT = "./server/data/racecards.json";
 
-console.log(`🚀 本日の出走表取得開始 (${dateStr})`);
+async function fetchRaceList() {
+  const url = `https://www.boatrace.jp/owpc/pc/race/index?hd=${today}`;
+  console.log(`🚀 本日のレース一覧を取得中: ${url}`);
 
-async function fetchTodayRaceLinks() {
-  const res = await fetch(INDEX_URL);
+  const res = await fetch(url);
   const html = await res.text();
 
-  const $ = cheerio.load(html);
-  const urls = [];
+  const $ = load(html);
+  const links = [];
 
-  $(".main_race_info .list_race a").each((_, el) => {
-    const href = $(el).attr("href");
-    if (href && href.includes("racelist")) {
-      urls.push("https://www.boatrace.jp" + href);
+  $(".table1 tbody tr").each((i, el) => {
+    const stadium = $(el).find("th").text().trim();
+    const href = $(el).find("a").attr("href");
+
+    if (href) {
+      links.push({
+        stadium,
+        url: "https://www.boatrace.jp" + href,
+      });
     }
   });
 
-  console.log(`📌 本日のレースURL数: ${urls.length}`);
-  return urls;
+  console.log(`✅ 出走表URL取得: ${links.length}件`);
+  return links;
 }
 
-async function fetchRacecard(url) {
-  try {
-    const res = await fetch(url);
-    const html = await res.text();
-    const $ = cheerio.load(html);
+async function fetchRace(stadium, url) {
+  const res = await fetch(url);
+  const html = await res.text();
 
-    const jcd = url.match(/jcd=(\d+)/)?.[1] ?? "??";
+  const $ = load(html);
+  const races = [];
 
-    const races = [];
+  $(".race_table1").each((i, table) => {
+    const title = $(table).find(".title1 h2").text().trim();
+    if (!title) return;
 
-    $(".table1").each((_, el) => {
-      const raceNo = $(el).find(".th_title span").text().trim();
-      if (!raceNo) return;
+    const rows = [];
 
-      const items = [];
-      $(el)
-        .find("tbody tr")
-        .each((_, tr) => {
-          const tds = $(tr).find("td");
-          const name = $(tds[2]).text().trim();
-          const nation = $(tds[3]).text().trim();
-          if (name) items.push({ name, nation });
-        });
+    $(table)
+      .find("tbody tr")
+      .each((i, tr) => {
+        const tds = $(tr).find("td");
 
-      races.push({ raceNo, items });
-    });
+        const entry = {
+          waku: $(tds[0]).text().trim(),
+          name: $(tds[1]).text().trim(),
+          motor: $(tds[2]).text().trim(),
+        };
 
-    console.log(`✅ ${jcd}: ${races.length}R 取得`);
+        if (entry.waku) rows.push(entry);
+      });
 
-    return {
-      jcd,
-      url,
-      date: dateStr,
-      races,
-    };
-  } catch (e) {
-    console.log(`❌ 取得失敗: ${url}`);
-    return null;
-  }
+    races.push({ title, entries: rows });
+  });
+
+  return { stadium, races };
 }
 
 async function main() {
-  const urls = await fetchTodayRaceLinks();
-  const results = [];
+  const list = await fetchRaceList();
+  const result = [];
 
-  for (const url of urls) {
-    const d = await fetchRacecard(url);
-    if (d) results.push(d);
+  for (const item of list) {
+    console.log(`🌊 取得中: ${item.stadium} ${item.url}`);
+
+    try {
+      const data = await fetchRace(item.stadium, item.url);
+      console.log(`✅ ${item.stadium}: ${data.races.length}R 取得`);
+      result.push(data);
+    } catch (e) {
+      console.log(`❌ ${item.stadium} 取得失敗: ${e.message}`);
+    }
   }
 
-  fs.writeFileSync(
-    "./server/data/racecards.json",
-    JSON.stringify(results, null, 2),
-    "utf-8"
-  );
-
-  console.log("📄 保存完了: ./server/data/racecards.json");
+  fs.writeFileSync(OUTPUT, JSON.stringify(result, null, 2));
+  console.log(`📄 出走表保存完了: ${OUTPUT}`);
 }
 
 main();
