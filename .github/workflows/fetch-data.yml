@@ -2,6 +2,7 @@ name: Fetch Boat Race Data
 
 on:
   schedule:
+    # JST 23:05（UTC 14:05）
     - cron: "5 14 * * *"
   workflow_dispatch:
 
@@ -10,20 +11,25 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # リポジトリ取得
       - name: Checkout repo
         uses: actions/checkout@v3
 
+      # Node.js 20 を使用（必須）
       - name: Use Node.js 20
         uses: actions/setup-node@v4
         with:
-          node-version: 20   # ← ここが重要！
+          node-version: 20
 
+      # 依存関係インストール（npm ci から変更）
       - name: Install deps
-        run: npm ci
+        run: npm install
 
+      # データ取得スクリプトの実行
       - name: Run data fetch
         run: npm run fetch-all
 
+      # コミットして push
       - name: Commit & Push
         run: |
           git config user.name "github-actions[bot]"
