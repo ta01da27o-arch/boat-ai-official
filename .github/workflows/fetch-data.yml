@@ -1,13 +1,16 @@
-name: Fetch Boat Race Data
+name: Fetch Boatrace Data
 
 on:
+  schedule:
+    - cron: "0 2 * * *"   # 日本時間11時 (UTC 02:00)
   workflow_dispatch:
 
 jobs:
-  fetch:
+  fetch-data:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Setup Node
@@ -18,13 +21,13 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Fetch Today Data
+      - name: Run fetch-all
         run: npm run fetch-all
 
-      - name: Commit & Push
+      - name: Commit & Push changes
         run: |
           git config --local user.name "github-actions"
-          git config --local user.email "github-actions@github.com"
-          git add server/data/racecards.json
-          git commit -m "Update racecards.json"
+          git config --local user.email "actions@github.com"
+          git add server/data/racecards.json || exit 0
+          git commit -m "Auto-update racecards" || echo "No changes to commit"
           git push
