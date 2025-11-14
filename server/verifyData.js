@@ -8,7 +8,6 @@ if (!fs.existsSync(file)) {
 }
 
 const data = JSON.parse(fs.readFileSync(file, "utf-8"));
-
 let totalRaces = 0;
 for (const d of data) totalRaces += d.races.length;
 
