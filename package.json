@@ -3,10 +3,10 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "fetch-all": "node server/fetchBoatraceRacecard_api.js && node server/verifyData.js"
+    "fetch-all": "node server/fetch_today.js && node server/verifyData.js"
   },
   "dependencies": {
-    "cheerio": "^1.0.0-rc.12",
-    "node-fetch": "^3.3.2"
+    "node-fetch": "^3.3.2",
+    "cheerio": "^1.0.0"
   }
 }
