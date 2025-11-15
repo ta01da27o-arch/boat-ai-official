@@ -1,40 +1,37 @@
-// parseRacecard.js
-// racelist ページの HTML を抽出する
+// server/parseRacecard.js
+// racelist HTML から出走表・選手データを抜き出す
 
 export function parseRacecard($) {
   const result = [];
 
-  // 各レース枠（12R まである）
-  $(".table1").each((_, table) => {
-    const race = {
-      title: "",
-      rows: []
-    };
+  // 各レースブロック
+  $(".race_table").each((_, raceEl) => {
+    const raceNumber = $(raceEl).find(".number").text().trim();
 
-    // レース番号（例：第1レース）
-    race.title = $(table).find(".hdg-l2-01").text().trim();
+    const rows = [];
 
-    // 出走表の行
-    $(table).find("tbody tr").each((_, row) => {
+    // 選手行を抽出
+    $(raceEl).find("tbody tr").each((_, row) => {
       const tds = $(row).find("td");
-      if (tds.length < 10) return; // 不正行はスキップ
 
-      const data = {
+      if (tds.length < 8) return; // データ行だけ対象
+
+      rows.push({
         waku: $(tds[0]).text().trim(),
-        player: $(tds[1]).text().trim(),
-        reg: $(tds[2]).text().trim(),
-        branch: $(tds[3]).text().trim(),
-        weight: $(tds[4]).text().trim(),
-        fl: $(tds[5]).text().trim(),
-        win_rate: $(tds[6]).text().trim(),
-        motor: $(tds[7]).text().trim(),
-        boat: $(tds[8]).text().trim()
-      };
-
-      race.rows.push(data);
+        name: $(tds[1]).text().trim(),
+        grade: $(tds[2]).text().trim(),
+        st: $(tds[3]).text().trim(),
+        flying: $(tds[4]).text().trim(),
+        nationalRate: $(tds[5]).text().trim(),
+        localRate: $(tds[6]).text().trim(),
+        motorRate: $(tds[7]).text().trim(),
+      });
     });
 
-    if (race.rows.length > 0) result.push(race);
+    result.push({
+      race: raceNumber,
+      rows
+    });
   });
 
   return result;

@@ -1,5 +1,5 @@
-// fetch_today.js
-// 全国24場の racelist を直接取得する安定版
+// server/fetch_today.js
+// 全国24場の racelist ページを直接取得して解析する安定版
 
 import fs from "fs";
 import fetch from "node-fetch";
@@ -13,7 +13,7 @@ const MM = String(TODAY.getMonth() + 1).padStart(2, "0");
 const DD = String(TODAY.getDate()).padStart(2, "0");
 const DATE = `${YYYY}${MM}${DD}`;
 
-// 24場コード
+// 24場
 const JCDS = [
   "01","02","03","04","05","06",
   "07","08","09","10","11","12",
@@ -21,10 +21,10 @@ const JCDS = [
   "19","20","21","22","23","24"
 ];
 
-console.log(`🚀 本日のレースを取得: ${DATE}`);
+console.log(`🚀 本日の全 racelist を取得: ${DATE}`);
 
 async function fetchToday() {
-  const result = [];
+  const allData = [];
 
   for (const jcd of JCDS) {
     const url = `https://www.boatrace.jp/owpc/pc/race/racelist?jcd=${jcd}&hd=${DATE}`;
@@ -33,22 +33,21 @@ async function fetchToday() {
     try {
       const html = await fetch(url).then(r => r.text());
 
-      // XMLのときは対象外
+      // XML の場合は開催なし
       if (html.startsWith("<?xml")) {
         console.log(`⚠ XML返却 → スキップ: jcd=${jcd}`);
         continue;
       }
 
       const $ = cheerio.load(html);
-
       const races = parseRacecard($);
 
-      if (!races || races.length === 0) {
+      if (races.length === 0) {
         console.log(`⚠ レースなし: jcd=${jcd}`);
         continue;
       }
 
-      result.push({
+      allData.push({
         jcd,
         url,
         races
@@ -59,9 +58,8 @@ async function fetchToday() {
     }
   }
 
-  // 保存
   const savePath = "./server/data/racecards.json";
-  fs.writeFileSync(savePath, JSON.stringify(result, null, 2));
+  fs.writeFileSync(savePath, JSON.stringify(allData, null, 2));
   console.log(`📄 出走表保存完了: ${savePath}`);
 }
 
