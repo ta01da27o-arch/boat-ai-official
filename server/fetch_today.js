@@ -1,58 +1,61 @@
 // fetch_today.js
-// 本日のボートレース出走表をHTMLスクレイピングで取得
+// 全国24場の racelist を直接取得する安定版
 
 import fs from "fs";
 import fetch from "node-fetch";
 import * as cheerio from "cheerio";
 import { parseRacecard } from "./parseRacecard.js";
 
+// 今日の日付
 const TODAY = new Date();
 const YYYY = TODAY.getFullYear();
 const MM = String(TODAY.getMonth() + 1).padStart(2, "0");
 const DD = String(TODAY.getDate()).padStart(2, "0");
 const DATE = `${YYYY}${MM}${DD}`;
 
-const INDEX_URL = `https://www.boatrace.jp/owpc/pc/race/index?hd=${DATE}`;
+// 24場コード
+const JCDS = [
+  "01","02","03","04","05","06",
+  "07","08","09","10","11","12",
+  "13","14","15","16","17","18",
+  "19","20","21","22","23","24"
+];
 
-console.log(`🚀 本日のレース一覧を取得中: ${INDEX_URL}`);
+console.log(`🚀 本日のレースを取得: ${DATE}`);
 
 async function fetchToday() {
   const result = [];
 
-  // レース一覧ページ取得
-  const html = await fetch(INDEX_URL).then(r => r.text());
-  const $ = cheerio.load(html);
+  for (const jcd of JCDS) {
+    const url = `https://www.boatrace.jp/owpc/pc/race/racelist?jcd=${jcd}&hd=${DATE}`;
+    console.log(`🌊 racelist 取得中: ${url}`);
 
-  const raceUrls = [];
-
-  $(".table1 tbody tr").each((_, el) => {
-    const a = $(el).find("a");
-    if (!a.length) return;
-
-    const href = a.attr("href");
-    if (href && href.includes("racelist")) {
-      raceUrls.push("https://www.boatrace.jp" + href);
-    }
-  });
-
-  console.log(`✅ 出走表URL取得: ${raceUrls.length}件`);
-
-  for (const url of raceUrls) {
-    console.log("🌊 取得中: ", url);
     try {
-      const page = await fetch(url).then(r => r.text());
-      const $$ = cheerio.load(page);
+      const html = await fetch(url).then(r => r.text());
 
-      // parseRacecard モジュールで抽出
-      const races = parseRacecard($$);
+      // XMLのときは対象外
+      if (html.startsWith("<?xml")) {
+        console.log(`⚠ XML返却 → スキップ: jcd=${jcd}`);
+        continue;
+      }
+
+      const $ = cheerio.load(html);
+
+      const races = parseRacecard($);
+
+      if (!races || races.length === 0) {
+        console.log(`⚠ レースなし: jcd=${jcd}`);
+        continue;
+      }
 
       result.push({
+        jcd,
         url,
         races
       });
 
     } catch (err) {
-      console.log("❌ 取得失敗:", err.message);
+      console.log(`❌ 取得失敗 jcd=${jcd}: ${err.message}`);
     }
   }
 
