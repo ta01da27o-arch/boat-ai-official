@@ -3,7 +3,7 @@
 
 import fs from "fs";
 import fetch from "node-fetch";
-import cheerio from "cheerio";
+import * as cheerio from "cheerio";   // ← 修正ポイント
 
 // 今日の日付
 const TODAY = new Date();
