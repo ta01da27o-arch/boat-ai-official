@@ -1,55 +1,23 @@
-// server/fetch_all.js
-// 本日 & 前日のレースデータを racelist(XML) → racecard(HTML) まで全取得
+// fetch_all.js
+// 本日 + 前日 をセットで取得
 
-import fs from "fs";
-import { fetchRacelist } from "./fetch_racelist.js";
-import { fetchRacecardDetail } from "./fetch_racecard.js";
+import { fetchDay } from "./fetch_day.js";
 
-// 今日
-const TODAY = new Date();
-const YYYY = TODAY.getFullYear();
-const MM = String(TODAY.getMonth() + 1).padStart(2, "0");
-const DD = String(TODAY.getDate()).padStart(2, "0");
-const TODAY_ID = `${YYYY}${MM}${DD}`;
+function getDate(offset = 0) {
+  const d = new Date();
+  d.setDate(d.getDate() + offset);
 
-// 前日
-const Y = new Date();
-Y.setDate(Y.getDate() - 1);
-const YYYY2 = Y.getFullYear();
-const MM2 = String(Y.getMonth() + 1).padStart(2, "0");
-const DD2 = String(Y.getDate()).padStart(2, "0");
-const YESTERDAY_ID = `${YYYY2}${MM2}${DD2}`;
+  const Y = d.getFullYear();
+  const M = String(d.getMonth() + 1).padStart(2, "0");
+  const D = String(d.getDate()).padStart(2, "0");
 
-async function run(date, savePath) {
-  console.log(`\n============================`);
-  console.log(`📅 取得対象日: ${date}`);
-  console.log("============================\n");
-
-  const racecardUrls = await fetchRacelist(date);
-
-  console.log(`🔗 racecard URL数: ${racecardUrls.length}`);
-
-  const allData = [];
-
-  for (const url of racecardUrls) {
-    console.log(`🌊 racecard 取得: ${url}`);
-    try {
-      const raceInfo = await fetchRacecardDetail(url);
-      allData.push(raceInfo);
-    } catch (e) {
-      console.log("❌ 取得失敗:", e.message);
-    }
-  }
-
-  fs.writeFileSync(savePath, JSON.stringify(allData, null, 2));
-
-  console.log(`💾 保存完了: ${savePath}`);
+  return `${Y}${M}${D}`;
 }
 
-// 本日
-await run(TODAY_ID, "./server/data/today.json");
+const today = getDate(0);
+const yesterday = getDate(-1);
 
-// 前日
-await run(YESTERDAY_ID, "./server/data/yesterday.json");
+await fetchDay(today, "./server/data/today.json");
+await fetchDay(yesterday, "./server/data/yesterday.json");
 
-console.log("\n✨ 完了しました！");
+console.log("\n✨ 完了しました！\n");
