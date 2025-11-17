@@ -3,17 +3,14 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "start": "node server/app.js",
     "fetch-all": "node server/fetch_all.js",
-    "fetch-today": "node server/fetch_today.js",
-    "fetch-yesterday": "node server/fetch_yesterday.js",
-    "verify": "node server/verifyData.js"
+    "check": "node server/verifyData.js"
   },
   "dependencies": {
     "axios": "^1.6.0",
     "cheerio": "^1.0.0",
-    "node-fetch": "^3.3.2",
-    "express": "^4.18.2",
-    "cors": "^2.8.5"
-  }
+    "xml2js": "^0.6.0"
+  },
+  "devDependencies": {},
+  "license": "MIT"
 }
