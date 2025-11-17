@@ -1,6 +1,6 @@
 // server/fetch_utils.js
 import axios from "axios";
-import cheerio from "cheerio";
+import * as cheerio from "cheerio";
 import fs from "fs";
 
 export async function fetchXML(url) {
@@ -24,19 +24,16 @@ export async function fetchHTML(url) {
   }
 }
 
-/* racelist → 出走表URL抽出 */
 export async function getRacecardUrls(jcd, date) {
   const xmlUrl = `https://www.boatrace.jp/owpc/pc/race/xml/racelist?jcd=${jcd}&hd=${date}`;
-  const htmlUrl = `https://www.boatrace.jp/owpc/pc/race/index?jcd=${jcd}&hd=${date}`; // ← 修正
+  const htmlUrl = `https://www.boatrace.jp/owpc/pc/race/index?jcd=${jcd}&hd=${date}`;
 
-  // 1. XML（成功すればこちら）
   const xmlData = await fetchXML(xmlUrl);
   if (xmlData) {
-    const urls = [...xmlData.matchAll(/<url>(.*?)<\/url>/g)].map((m) => m[1]);
+    const urls = [...xmlData.matchAll(/<url>(.*?)<\/url>/g)].map(m => m[1]);
     if (urls.length > 0) return urls;
   }
 
-  // 2. HTML fallback
   const html = await fetchHTML(htmlUrl);
   if (!html) return [];
 
@@ -53,7 +50,6 @@ export async function getRacecardUrls(jcd, date) {
   return urls;
 }
 
-/* 出走表詳細ページを取得 */
 export async function fetchRaceDetail(url) {
   try {
     const html = await fetchHTML(url);
@@ -61,7 +57,6 @@ export async function fetchRaceDetail(url) {
 
     const $ = cheerio.load(html);
 
-    // （最低限）タイトルと選手表だけ取得
     const title = $(".heading1_title").text().trim();
 
     const players = [];
