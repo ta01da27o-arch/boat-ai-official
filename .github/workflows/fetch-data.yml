@@ -1,34 +1,36 @@
 name: Fetch Boat Race Data
 
-# 手動実行 + 毎日定期実行 (JST 23:00)
 on:
-  workflow_dispatch:
   schedule:
-    - cron: '0 14 * * *'  # UTC 14:00 = JST 23:00
+    - cron: "5 5 * * *"   # JST 14:05
+  workflow_dispatch:
 
 jobs:
   fetch:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repo
+      - name: checkout
         uses: actions/checkout@v3
 
-      - name: Set up Node.js 20
+      - name: Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
 
-      - name: Install dependencies
+      - name: Install
         run: npm install
 
-      - name: Run data fetch
-        run: npm run fetch-all
+      - name: Fetch all
+        run: node server/fetch_all.js
 
-      - name: Commit & Push changes
+      - name: Verify
+        run: node server/verifyData.js
+
+      - name: Commit & Push
         run: |
-          git config --local user.name "github-actions[bot]"
-          git config --local user.email "github-actions[bot]@users.noreply.github.com"
-          git add ./server/data/racecards.json
-          git commit -m "update racecards data" || echo "No changes to commit"
+          git config user.name github-actions[bot]
+          git config user.email github-actions[bot]@users.noreply.github.com
+          git add .
+          git commit -m "auto update race data" || echo "No changes"
           git push
