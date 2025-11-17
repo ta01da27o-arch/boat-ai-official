@@ -1,65 +1,83 @@
-// fetch_utils.js
-// XML → HTML フォールバック ＋ 開催判定 ＋ 安全fetch
-
+// server/fetch_utils.js
 import axios from "axios";
-import * as cheerio from "cheerio";
+import cheerio from "cheerio";
+import fs from "fs";
 
-/**
- * 安全fetch（XML/HTML共通）
- */
-export async function safeFetch(url, type = "text") {
+export async function fetchXML(url) {
   try {
-    const res = await axios.get(url, { timeout: 10000 });
-    return type === "xml" ? res.data : res.data;
-  } catch (err) {
-    console.log(`❌ Fetch失敗: ${url}`);
+    const res = await axios.get(url, { timeout: 8000 });
+    if (res.headers["content-type"]?.includes("xml")) {
+      return res.data;
+    }
+    return null;
+  } catch {
     return null;
   }
 }
 
-/**
- * XML開催判定 ＆ racelist取得
- */
-export async function getRacelistUrls(jcd, hd) {
-  const xmlUrl = `https://www.boatrace.jp/owpc/pc/race/xml/racelist?jcd=${jcd}&hd=${hd}`;
-  const htmlUrl = `https://www.boatrace.jp/owpc/pc/race/racelist?jcd=${jcd}&hd=${hd}`;
+export async function fetchHTML(url) {
+  try {
+    const res = await axios.get(url, { timeout: 8000 });
+    return res.data;
+  } catch {
+    return null;
+  }
+}
 
-  // --- ① XML試行 ---
-  const xmlText = await safeFetch(xmlUrl, "xml");
+/* racelist → 出走表URL抽出 */
+export async function getRacecardUrls(jcd, date) {
+  const xmlUrl = `https://www.boatrace.jp/owpc/pc/race/xml/racelist?jcd=${jcd}&hd=${date}`;
+  const htmlUrl = `https://www.boatrace.jp/owpc/pc/race/index?jcd=${jcd}&hd=${date}`; // ← 修正
 
-  if (xmlText) {
-    // 開催していれば <Racelist> 内に複数の race タグがある
-    const hasRace = xmlText.includes("<item>") || xmlText.includes("<race>");
-    if (hasRace) {
-      console.log(`🟢 XML開催: jcd=${jcd}`);
-      // XML では racelist は1ページなので URL を返す
-      return [htmlUrl];
-    } else {
-      console.log(`⚠ XML非開催: jcd=${jcd}`);
-    }
+  // 1. XML（成功すればこちら）
+  const xmlData = await fetchXML(xmlUrl);
+  if (xmlData) {
+    const urls = [...xmlData.matchAll(/<url>(.*?)<\/url>/g)].map((m) => m[1]);
+    if (urls.length > 0) return urls;
   }
 
-  // --- ② HTMLフォールバック ---
-  console.log(`🔄 HTMLフォールバック: jcd=${jcd}`);
-  const html = await safeFetch(htmlUrl);
-
+  // 2. HTML fallback
+  const html = await fetchHTML(htmlUrl);
   if (!html) return [];
 
   const $ = cheerio.load(html);
   const urls = [];
 
-  $(".table1 a").each((_, el) => {
+  $("a").each((_, el) => {
     const href = $(el).attr("href");
-    if (href && href.includes("racelist")) {
+    if (href && href.includes("/owpc/pc/race/racecard")) {
       urls.push("https://www.boatrace.jp" + href);
     }
   });
 
-  if (urls.length === 0) {
-    console.log(`⚠ HTML非開催: jcd=${jcd}`);
-    return [];
-  }
-
-  console.log(`🟢 HTML開催: jcd=${jcd} URL数=${urls.length}`);
   return urls;
+}
+
+/* 出走表詳細ページを取得 */
+export async function fetchRaceDetail(url) {
+  try {
+    const html = await fetchHTML(url);
+    if (!html) return null;
+
+    const $ = cheerio.load(html);
+
+    // （最低限）タイトルと選手表だけ取得
+    const title = $(".heading1_title").text().trim();
+
+    const players = [];
+    $(".table1 tbody tr").each((_, tr) => {
+      const tds = $(tr).find("td");
+      if (tds.length >= 6) {
+        players.push({
+          lane: $(tds[0]).text().trim(),
+          name: $(tds[1]).text().trim(),
+          reg: $(tds[2]).text().trim(),
+        });
+      }
+    });
+
+    return { url, title, players };
+  } catch {
+    return null;
+  }
 }
