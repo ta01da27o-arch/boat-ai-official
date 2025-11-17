@@ -1,76 +1,55 @@
 // server/fetch_all.js
+// 本日 & 前日のレースデータを racelist(XML) → racecard(HTML) まで全取得
+
 import fs from "fs";
-import axios from "axios";
-import { fetchRacelist } from "./getRacelist.js";
-import { parseRacecard } from "./parseRacecard.js";
+import { fetchRacelist } from "./fetch_racelist.js";
+import { fetchRacecardDetail } from "./fetch_racecard.js";
 
-const jcdList = [...Array(24)].map((_, i) =>
-  String(i + 1).padStart(2, "0")
-);
+// 今日
+const TODAY = new Date();
+const YYYY = TODAY.getFullYear();
+const MM = String(TODAY.getMonth() + 1).padStart(2, "0");
+const DD = String(TODAY.getDate()).padStart(2, "0");
+const TODAY_ID = `${YYYY}${MM}${DD}`;
 
-// 日付シフト
-function shift(day, diff) {
-  const y = Number(day.slice(0, 4));
-  const m = Number(day.slice(4, 6)) - 1;
-  const d = Number(day.slice(6, 8));
-  const dt = new Date(y, m, d + diff);
-  return dt.toISOString().slice(0, 10).replace(/-/g, "");
-}
+// 前日
+const Y = new Date();
+Y.setDate(Y.getDate() - 1);
+const YYYY2 = Y.getFullYear();
+const MM2 = String(Y.getMonth() + 1).padStart(2, "0");
+const DD2 = String(Y.getDate()).padStart(2, "0");
+const YESTERDAY_ID = `${YYYY2}${MM2}${DD2}`;
 
-// 有効なレース日を検索
-async function findRaceDate(base) {
-  for (let i = 0; i < 5; i++) {
-    const url = `https://www.boatrace.jp/owpc/pc/race/index?hd=${base}`;
-    const res = await axios.get(url);
+async function run(date, savePath) {
+  console.log(`\n============================`);
+  console.log(`📅 取得対象日: ${date}`);
+  console.log("============================\n");
 
-    if (!res.data.startsWith("<?xml")) return base;
+  const racecardUrls = await fetchRacelist(date);
 
-    base = shift(base, -1);
-  }
-  return base;
-}
+  console.log(`🔗 racecard URL数: ${racecardUrls.length}`);
 
-// racecard詳細取得
-async function fetchDetail(url) {
-  const html = await axios.get(url).then(r => r.data);
-  return parseRacecard(html);
-}
+  const allData = [];
 
-async function fetchByDay(day, outfile) {
-  console.log(`📅 取得日: ${day}`);
-
-  const allUrls = [];
-
-  for (const jcd of jcdList) {
-    const urls = await fetchRacelist(jcd, day);
-    allUrls.push(...urls);
-  }
-
-  console.log(`🔗 racecard URL数: ${allUrls.length}`);
-
-  const results = [];
-
-  for (const url of allUrls) {
-    console.log("📄 解析中:", url);
+  for (const url of racecardUrls) {
+    console.log(`🌊 racecard 取得: ${url}`);
     try {
-      const detail = await fetchDetail(url);
-      results.push({ url, ...detail });
-    } catch {
-      console.log("❌ 取得失敗:", url);
+      const raceInfo = await fetchRacecardDetail(url);
+      allData.push(raceInfo);
+    } catch (e) {
+      console.log("❌ 取得失敗:", e.message);
     }
   }
 
-  fs.writeFileSync(outfile, JSON.stringify(results, null, 2));
-  console.log(`💾 保存完了: ${outfile}`);
+  fs.writeFileSync(savePath, JSON.stringify(allData, null, 2));
+
+  console.log(`💾 保存完了: ${savePath}`);
 }
 
-async function main() {
-  const today = new Date().toISOString().slice(0, 10).replace(/-/g, "");
-  const validToday = await findRaceDate(today);
-  const validYesterday = shift(validToday, -1);
+// 本日
+await run(TODAY_ID, "./server/data/today.json");
 
-  await fetchByDay(validToday, "./server/data/today.json");
-  await fetchByDay(validYesterday, "./server/data/yesterday.json");
-}
+// 前日
+await run(YESTERDAY_ID, "./server/data/yesterday.json");
 
-main();
+console.log("\n✨ 完了しました！");
