@@ -1,40 +1,29 @@
-name: Fetch BoatRace Data
+name: Fetch Race Data
 
 on:
-  workflow_dispatch:       # 手動実行
+  workflow_dispatch:
   schedule:
-    - cron: "20 15 * * *"  # 毎日 00:20 JST に自動実行（15:20 UTC）
+    - cron: "0 22 * * *"   # 日本時間 07:00
 
 jobs:
   fetch:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v3
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v3
         with:
-          node-version: "20"
+          node-version: 20
 
-      - name: Install dependencies
-        run: npm install
+      - run: npm install
 
-      - name: Run fetch-all (today + yesterday)
-        run: npm run fetch-all
+      - run: npm run fetch-all
 
-      - name: Show generated files
+      - name: Commit & Push
         run: |
-          echo "----- today.json -----"
-          cat server/data/today.json || echo "No today.json"
-          echo "----- yesterday.json -----"
-          cat server/data/yesterday.json || echo "No yesterday.json"
-
-      - name: Commit & Push updated data
-        run: |
-          git config --local user.email "actions@github.com"
-          git config --local user.name "GitHub Actions"
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
           git add server/data/*.json
-          git commit -m "Update BoatRace data (today + yesterday)" || echo "No changes to commit"
+          git commit -m "update data" || echo "No changes"
           git push
