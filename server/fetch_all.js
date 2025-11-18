@@ -1,21 +1,14 @@
 // server/fetch_all.js
-import { fetchDay } from "./fetch_day.js";
+import { execSync } from "child_process";
 
-function format(d) {
-  return (
-    d.getFullYear().toString() +
-    (d.getMonth() + 1).toString().padStart(2, "0") +
-    d.getDate().toString().padStart(2, "0")
-  );
-}
+const run = (cmd) => {
+  console.log(`▶ ${cmd}`);
+  execSync(cmd, { stdio: "inherit" });
+};
 
-const today = new Date();
-const yesterday = new Date(today.getTime() - 86400000);
+console.log("📌 Playwright版データ取得を開始します");
 
-const todayStr = format(today);
-const yestStr = format(yesterday);
+run("npm run fetch-today");
+run("npm run fetch-yesterday");
 
-await fetchDay(todayStr, "./server/data/today.json");
-await fetchDay(yestStr, "./server/data/yesterday.json");
-
-console.log("✨ 完了しました！");
+console.log("🎉 すべてのデータ取得が完了しました");
