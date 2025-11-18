@@ -1,16 +1,13 @@
 {
-  "name": "boat-ai-official",
+  "name": "boat-data-fetcher",
   "version": "1.0.0",
-  "main": "server/fetch_all.js",
   "type": "module",
   "scripts": {
-    "fetch-all": "node server/fetch_all.js",
-    "fetch-today": "node server/fetch_playwright.js",
-    "fetch-yesterday": "HD_OFFSET=-1 node server/fetch_playwright.js"
+    "fetch": "node server/fetch_all.js"
   },
   "dependencies": {
-    "playwright": "^1.48.2",
-    "dayjs": "^1.11.11",
+    "axios": "^1.7.4",
+    "cheerio": "^1.0.0",
     "fs-extra": "^11.2.0"
   }
 }
