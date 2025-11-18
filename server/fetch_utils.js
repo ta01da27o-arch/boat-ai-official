@@ -1,78 +1,117 @@
 // server/fetch_utils.js
 import axios from "axios";
-import * as cheerio from "cheerio";
+import cheerio from "cheerio";
 import fs from "fs";
+import path from "path";
 
-export async function fetchXML(url) {
+// ---- 設定 ----
+const BASE_XML = "https://www.boatrace.jp/owpc/pc/race/racelist_xml";
+const BASE_HTML = "https://www.boatrace.jp/owpc/pc/race/racelist";
+const DETAIL_HTML = "https://www.boatrace.jp/owpc/pc/race/racedata";
+
+/**
+ * XML racelist を取得
+ */
+export async function fetchRaceListXML(jcd, dateStr) {
+  const url = `${BASE_XML}?jcd=${jcd}&hd=${dateStr}`;
   try {
     const res = await axios.get(url, { timeout: 8000 });
-    if (res.headers["content-type"]?.includes("xml")) {
-      return res.data;
-    }
-    return null;
-  } catch {
-    return null;
-  }
-}
-
-export async function fetchHTML(url) {
-  try {
-    const res = await axios.get(url, { timeout: 8000 });
+    if (!res.data || res.data.includes("<title>404")) return null;
     return res.data;
   } catch {
     return null;
   }
 }
 
-export async function getRacecardUrls(jcd, date) {
-  const xmlUrl = `https://www.boatrace.jp/owpc/pc/race/xml/racelist?jcd=${jcd}&hd=${date}`;
-  const htmlUrl = `https://www.boatrace.jp/owpc/pc/race/index?jcd=${jcd}&hd=${date}`;
-
-  const xmlData = await fetchXML(xmlUrl);
-  if (xmlData) {
-    const urls = [...xmlData.matchAll(/<url>(.*?)<\/url>/g)].map(m => m[1]);
-    if (urls.length > 0) return urls;
-  }
-
-  const html = await fetchHTML(htmlUrl);
-  if (!html) return [];
-
-  const $ = cheerio.load(html);
-  const urls = [];
-
-  $("a").each((_, el) => {
-    const href = $(el).attr("href");
-    if (href && href.includes("/owpc/pc/race/racecard")) {
-      urls.push("https://www.boatrace.jp" + href);
-    }
-  });
-
-  return urls;
-}
-
-export async function fetchRaceDetail(url) {
+/**
+ * HTML racelist（fallback）
+ */
+export async function fetchRaceListHTML(jcd, dateStr) {
+  const url = `${BASE_HTML}?jcd=${jcd}&hd=${dateStr}`;
   try {
-    const html = await fetchHTML(url);
-    if (!html) return null;
-
-    const $ = cheerio.load(html);
-
-    const title = $(".heading1_title").text().trim();
-
-    const players = [];
-    $(".table1 tbody tr").each((_, tr) => {
-      const tds = $(tr).find("td");
-      if (tds.length >= 6) {
-        players.push({
-          lane: $(tds[0]).text().trim(),
-          name: $(tds[1]).text().trim(),
-          reg: $(tds[2]).text().trim(),
-        });
-      }
-    });
-
-    return { url, title, players };
+    const res = await axios.get(url, { timeout: 8000 });
+    if (!res.data) return null;
+    return res.data;
   } catch {
     return null;
   }
+}
+
+/**
+ * racelist（XML→HTML fallback）
+ */
+export async function fetchRaceList(jcd, dateStr) {
+  const xml = await fetchRaceListXML(jcd, dateStr);
+  if (xml) return { type: "xml", data: xml };
+
+  const html = await fetchRaceListHTML(jcd, dateStr);
+  if (html) return { type: "html", data: html };
+
+  return null;
+}
+
+/**
+ * racelist → レース番号一覧抽出
+ */
+export function parseRaceNumbers(listData) {
+  const { type, data } = listData;
+
+  if (type === "xml") {
+    const $ = cheerio.load(data, { xmlMode: true });
+    const races = [];
+    $("item").each((i, el) => {
+      const no = $(el).attr("id");
+      if (no) races.push(no);
+    });
+    return races;
+  }
+
+  if (type === "html") {
+    const $ = cheerio.load(data);
+    const races = [];
+    $(".is-h2.card").each((i, el) => {
+      const txt = $(el).find(".h2_title").text().trim();
+      const match = txt.match(/(\d{1,2})R/);
+      if (match) races.push(match[1]);
+    });
+    return races;
+  }
+
+  return [];
+}
+
+/**
+ * レース詳細ページ取得
+ */
+export async function fetchRaceDetail(jcd, dateStr, raceNo) {
+  const url = `${DETAIL_HTML}?jcd=${jcd}&hd=${dateStr}&rno=${raceNo}`;
+  try {
+    const res = await axios.get(url, { timeout: 8000 });
+    return res.data || null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * jcd の1日分の全レース取得
+ */
+export async function fetchJCDAll(jcd, dateStr) {
+  const racelist = await fetchRaceList(jcd, dateStr);
+  if (!racelist) return null;
+
+  const raceNos = parseRaceNumbers(racelist);
+  const detail = {};
+
+  for (const no of raceNos) {
+    const html = await fetchRaceDetail(jcd, dateStr, no);
+    detail[no] = html;
+  }
+
+  return {
+    jcd,
+    date: dateStr,
+    racelist,
+    detail,
+  };
 }
