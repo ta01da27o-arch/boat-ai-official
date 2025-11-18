@@ -1,30 +1,21 @@
 // server/parse_race_detail.js
-import cheerio from "cheerio";
+import * as cheerio from "cheerio";
 
-/**
- * HTMLからレース情報を抽出する
- * @param {string} html - racedata HTML
- */
 export function parseRaceDetailHTML(html) {
   const $ = cheerio.load(html);
 
-  // --- タイトル、レース名 ---
   const raceTitle = $(".heading1_title").text().trim() || null;
   const subTitle = $(".heading2_title").text().trim() || null;
 
-  // --- 天候・風 ---
   const weather = $(".weather1_bodyUnitLabel").text().trim() || null;
-
   const wDir = $(".weather1_windLabel").text().trim() || null;
   const wSpeed = $(".weather1_windValue").text().trim() || null;
   const wave = $(".weather1_waveValue").text().trim() || null;
 
-  // --- 選手データ ---
   const boats = [];
 
   $(".table1 tbody tr").each((i, row) => {
     const cols = $(row).find("td");
-
     if (cols.length < 8) return;
 
     boats.push({
