@@ -1,8 +1,8 @@
-name: Fetch Boat Race Data
+name: Fetch BoatRace Data
 
 on:
   schedule:
-    - cron: "25 7 * * *"
+    - cron: "0 */3 * * *"  # 3時間ごと
   workflow_dispatch:
 
 jobs:
@@ -10,29 +10,23 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
-
-      - name: Install Playwright Browsers
-        run: |
-          npx playwright install --with-deps chromium
+          node-version: 20
 
       - name: Install Dependencies
         run: npm install
 
-      - name: Run Fetch All (today + yesterday)
-        run: npm run fetch-all
+      - name: Run Fetch
+        run: node server/fetch_all.js
 
-      - name: Commit & Push Data
+      - name: Commit & Push
         run: |
           git config --local user.name "github-actions"
-          git config --local user.email "github-actions@github.com"
-
-          git add data/*.json
-          git commit -m "Auto update race data on $(date '+%Y-%m-%d %H:%M:%S')" || echo "No changes"
-          git push || echo "Push skipped"
+          git config --local user.email "actions@github.com"
+          git add .
+          git commit -m "update data" || echo "no changes"
+          git push
