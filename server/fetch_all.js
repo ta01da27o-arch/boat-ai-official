@@ -1,16 +1,10 @@
+// server/fetch_all.js
 import fs from "fs";
-import path from "path";
-import { fileURLToPath } from "url";
 import {
   fetchRacelistHTML,
-  fetchRacecardHTML,
   fetchRaceDetailHTML,
   parseRacelistHTML
 } from "./fetch_utils.js";
-import { parseRaceDetailHTML } from "./parse_race_details.js";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 const JCD_LIST = [
   "01","02","03","04","05","06","07","08",
@@ -20,14 +14,16 @@ const JCD_LIST = [
 
 function getDate(offset = 0) {
   const d = new Date(Date.now() + offset * 86400000);
-  return d.toISOString().slice(0,10).replace(/-/g,"");
+  return d.toISOString().slice(0, 10).replace(/-/g, "");
 }
 
 async function processDay(dateStr) {
+  console.log(`📅 取得開始: ${dateStr}`);
+
   const result = [];
 
   for (const jcd of JCD_LIST) {
-    console.log(`\n■ ${jcd} — racelist 取得中（${dateStr}）`);
+    console.log(`\n🌊 racelist: jcd=${jcd}`);
 
     const html = await fetchRacelistHTML(jcd, dateStr);
     if (!html) {
@@ -36,39 +32,23 @@ async function processDay(dateStr) {
     }
 
     const races = parseRacelistHTML(html);
-    if (!races.length) {
-      console.log(`⚠ レースが存在しない: jcd=${jcd}`);
-      continue;
-    }
 
-    for (const race of races) {
-      console.log(`   ▶ racecard: ${race.url}`);
-      const rcHTML = await fetchRacecardHTML(race.url);
-      if (!rcHTML) {
+    for (const r of races) {
+      console.log(`   ▶ racecard: ${r.url}`);
+
+      const detailHTML = await fetchRaceDetailHTML(r.url);
+      if (!detailHTML) {
         console.log(`   ⚠ racecard 取得不可`);
         continue;
       }
 
-      // racecard から detail URL 取得
-      const detailUrl = race.url.replace("racecard", "racedata");
-      console.log(`   ▶ detail: ${detailUrl}`);
-
-      const rdHTML = await fetchRaceDetailHTML(detailUrl);
-      if (!rdHTML) {
-        console.log("   ⚠ detail 取得不可");
-        continue;
-      }
-
-      const detail = parseRaceDetailHTML(rdHTML);
-
       result.push({
-        date: dateStr,
         jcd,
-        raceno: race.raceno,
-        title: race.title,
-        racecardUrl: race.url,
-        detailUrl,
-        detail
+        date: dateStr,
+        raceno: r.raceno,
+        title: r.title,
+        url: r.url,
+        html: detailHTML
       });
     }
   }
@@ -76,20 +56,15 @@ async function processDay(dateStr) {
   return result;
 }
 
-
 async function main() {
-  console.log("📅 取得開始");
   const today = getDate(0);
   const yesterday = getDate(-1);
 
-  const dataToday = await processDay(today);
-  const dataYesterday = await processDay(yesterday);
+  const todayData = await processDay(today);
+  fs.writeFileSync("./server/data/today.json", JSON.stringify(todayData, null, 2));
 
-  const outDir = path.join(__dirname, "data");
-  if (!fs.existsSync(outDir)) fs.mkdirSync(outDir);
-
-  fs.writeFileSync(`${outDir}/${today}.json`, JSON.stringify(dataToday, null, 2));
-  fs.writeFileSync(`${outDir}/${yesterday}.json`, JSON.stringify(dataYesterday, null, 2));
+  const ydData = await processDay(yesterday);
+  fs.writeFileSync("./server/data/yesterday.json", JSON.stringify(ydData, null, 2));
 
   console.log("\n💾 保存完了");
   console.log("✨ 完了しました！");
