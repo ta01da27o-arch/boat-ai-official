@@ -1,10 +1,16 @@
 // server/fetch_all.js
 import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
+
 import {
   fetchRacelistHTML,
-  fetchRaceDetailHTML,
-  parseRacelistHTML
+  parseRacelistHTML,
+  fetchRaceDetailHTML
 } from "./fetch_utils.js";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const JCD_LIST = [
   "01","02","03","04","05","06","07","08",
@@ -12,62 +18,75 @@ const JCD_LIST = [
   "17","18","19","20","21","22","23","24"
 ];
 
+// 日付を YYYYMMDD で返す
 function getDate(offset = 0) {
   const d = new Date(Date.now() + offset * 86400000);
   return d.toISOString().slice(0, 10).replace(/-/g, "");
 }
 
+// 1 日分の処理
 async function processDay(dateStr) {
-  console.log(`📅 取得開始: ${dateStr}`);
+  console.log(`📅 取得日: ${dateStr}`);
 
-  const result = [];
+  const results = [];
 
   for (const jcd of JCD_LIST) {
-    console.log(`\n🌊 racelist: jcd=${jcd}`);
+    console.log(`\n===== JCD=${jcd} =====`);
 
+    // racelist HTML 取得
     const html = await fetchRacelistHTML(jcd, dateStr);
     if (!html) {
-      console.log(`⚠ racelist 取得不可: jcd=${jcd}`);
+      console.log(`⚠ 非開催 or 取得不可: jcd=${jcd}`);
       continue;
     }
 
-    const races = parseRacelistHTML(html);
+    // racelist をパース
+    const cards = parseRacelistHTML(html);
+    if (cards.length === 0) {
+      console.log(`⚠ 有効なレースなし: jcd=${jcd}`);
+      continue;
+    }
 
-    for (const r of races) {
-      console.log(`   ▶ racecard: ${r.url}`);
+    // 各 racecard 取得
+    for (const card of cards) {
+      console.log(`▶ racecard: ${card.url}`);
 
-      const detailHTML = await fetchRaceDetailHTML(r.url);
+      const detailHTML = await fetchRaceDetailHTML(card.url);
       if (!detailHTML) {
-        console.log(`   ⚠ racecard 取得不可`);
+        console.log("   ⚠ racecard 取得不可");
         continue;
       }
 
-      result.push({
+      results.push({
         jcd,
         date: dateStr,
-        raceno: r.raceno,
-        title: r.title,
-        url: r.url,
+        raceno: card.raceno,
+        title: card.title,
+        url: card.url,
         html: detailHTML
       });
     }
   }
 
-  return result;
+  return results;
 }
 
+// 実行メイン
 async function main() {
   const today = getDate(0);
   const yesterday = getDate(-1);
 
-  const todayData = await processDay(today);
-  fs.writeFileSync("./server/data/today.json", JSON.stringify(todayData, null, 2));
+  const outToday = await processDay(today);
+  const outYesterday = await processDay(yesterday);
 
-  const ydData = await processDay(yesterday);
-  fs.writeFileSync("./server/data/yesterday.json", JSON.stringify(ydData, null, 2));
+  const savePathToday = path.join(__dirname, "data", "today.json");
+  const savePathYesterday = path.join(__dirname, "data", "yesterday.json");
 
-  console.log("\n💾 保存完了");
-  console.log("✨ 完了しました！");
+  fs.writeFileSync(savePathToday, JSON.stringify(outToday, null, 2));
+  fs.writeFileSync(savePathYesterday, JSON.stringify(outYesterday, null, 2));
+
+  console.log(`\n💾 保存完了`);
+  console.log(`✨ 完了しました！`);
 }
 
 main();
