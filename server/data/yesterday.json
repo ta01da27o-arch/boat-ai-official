@@ -1,1 +1,678 @@
-[]
+{
+  "date": "20251119",
+  "venues": [
+    {
+      "jcd": "01",
+      "status": "blocked"
+    },
+    {
+      "jcd": "02",
+      "status": "blocked"
+    },
+    {
+      "jcd": "03",
+      "status": "blocked"
+    },
+    {
+      "jcd": "04",
+      "status": "blocked"
+    },
+    {
+      "jcd": "05",
+      "status": "blocked"
+    },
+    {
+      "jcd": "06",
+      "status": "blocked"
+    },
+    {
+      "jcd": "07",
+      "status": "blocked"
+    },
+    {
+      "jcd": "08",
+      "status": "blocked"
+    },
+    {
+      "jcd": "09",
+      "status": "blocked"
+    },
+    {
+      "jcd": "10",
+      "status": "blocked"
+    },
+    {
+      "jcd": "11",
+      "status": "blocked"
+    },
+    {
+      "jcd": "12",
+      "status": "blocked"
+    },
+    {
+      "jcd": "13",
+      "status": "blocked"
+    },
+    {
+      "jcd": "14",
+      "status": "blocked"
+    },
+    {
+      "jcd": "15",
+      "status": "blocked"
+    },
+    {
+      "jcd": "16",
+      "status": "blocked"
+    },
+    {
+      "jcd": "17",
+      "status": "blocked"
+    },
+    {
+      "jcd": "18",
+      "status": "blocked"
+    },
+    {
+      "jcd": "19",
+      "status": "blocked"
+    },
+    {
+      "jcd": "20",
+      "status": "blocked"
+    },
+    {
+      "jcd": "21",
+      "status": "blocked"
+    },
+    {
+      "jcd": "22",
+      "status": "blocked"
+    },
+    {
+      "jcd": "23",
+      "status": "blocked"
+    },
+    {
+      "jcd": "24",
+      "status": "blocked"
+    }
+  ],
+  "api_xml": {
+    "?xml": {
+      "@_version": "1.0",
+      "@_encoding": "UTF-8",
+      "@_standalone": "no"
+    },
+    "html": {
+      "head": {
+        "meta": [
+          {
+            "@_http-equiv": "Content-Type",
+            "@_content": "text/html; charset=UTF-8"
+          },
+          {
+            "@_http-equiv": "Pragma",
+            "@_content": "no-cache"
+          },
+          {
+            "@_charset": "UTF-8"
+          },
+          {
+            "@_name": "Description",
+            "@_content": ""
+          },
+          {
+            "@_name": "Keywords",
+            "@_content": ""
+          },
+          {
+            "@_name": "format-detection",
+            "@_content": "telephone=no"
+          },
+          {
+            "@_http-equiv": "X-UA-Compatible",
+            "@_content": "IE=Edge"
+          }
+        ],
+        "title": "システムエラー｜BOAT RACE オフィシャルウェブサイト",
+        "link": {
+          "@_rel": "stylesheet",
+          "@_href": "/static_extra/pc/css/main.css"
+        },
+        "script": [
+          {
+            "@_src": "/static_extra/js/libs/jquery-1.11.3.min.js"
+          },
+          {
+            "@_src": "/static_extra/pc/js/libs/modernizr.min.js"
+          },
+          {
+            "@_language": "javascript"
+          },
+          {
+            "@_src": "/owpc/TOTH010-TOTHPC010PR.js"
+          },
+          {
+            "@_src": "/owpc/js/ow-common.js"
+          },
+          {
+            "@_language": "javascript",
+            "@_charset": "UTF-8",
+            "@_type": "text/javascript",
+            "@_src": "/owpc/js/race.js"
+          },
+          "(window.BOOMR_mq=window.BOOMR_mq||[]).push([\"addVar\",{\"rua.upush\":\"false\",\"rua.cpush\":\"false\",\"rua.upre\":\"false\",\"rua.cpre\":\"true\",\"rua.uprl\":\"false\",\"rua.cprl\":\"false\",\"rua.cprf\":\"false\",\"rua.trans\":\"SJ-a584cdc4-a4df-47a4-a3c4-3c78fff41df4\",\"rua.cook\":\"false\",\"rua.ims\":\"false\",\"rua.ufprl\":\"false\",\"rua.cfprl\":\"false\",\"rua.isuxp\":\"false\",\"rua.texp\":\"norulematch\",\"rua.ceh\":\"false\",\"rua.ueh\":\"false\",\"rua.ieh.st\":\"0\"}]);",
+          {
+            "bo\"+\"dy": {
+              "#text": "\");else if(O._boomrl=function(){t()},O.addEventListener)O.addEventListener(\"load\",O._boomrl,!1);else if(O.attachEvent)O.attachEvent(\"onload\",O._boomrl);d.close()}function a(e){window.BOOMR_onload=e&&e.timeStamp||(new Date).getTime()}if(!window.BOOMR||!window.BOOMR.version&&!window.BOOMR.snippetExecuted){window.BOOMR=window.BOOMR||{},window.BOOMR.snippetStart=(new Date).getTime(),window.BOOMR.snippetExecuted=!0,window.BOOMR.snippetVersion=12,window.BOOMR.url=n+\"BK9MD-NAPZQ-PFTWM-2CATF-Q959S\";var i=document.currentScript||document.getElementsByTagName(\"script\")[0],o=!1,r=document.createElement(\"link\");if(r.relList&&\"function\"==typeof r.relList.supports&&r.relList.supports(\"preload\")&&\"as\"in r)window.BOOMR.snippetMethod=\"p\",r.href=window.BOOMR.url,r.rel=\"preload\",r.as=\"script\",r.addEventListener(\"load\",e),r.addEventListener(\"error\",function(){t(!0)}),setTimeout(function(){if(!o)t(!0)},3e3),BOOMR_lstart=(new Date).getTime(),i.parentNode.appendChild(r);else t(!1);if(window.addEventListener)window.addEventListener(\"load\",a,!1);else if(window.attachEvent)window.attachEvent(\"onload\",a)}}(),\"\".length>0)if(e&&\"performance\"in e&&e.performance&&\"function\"==typeof e.performance.setResourceTimingBufferSize)e.performance.setResourceTimingBufferSize();!function(){if(BOOMR=e.BOOMR||{},BOOMR.plugins=BOOMR.plugins||{},!BOOMR.plugins.AK){var n=\"true\"==\"true\"?1:0,t=\"\",a=\"isnhirixb5mds2i6nwbq-f-e514b4383-clientnsv4-s.akamaihd.net\",i=\"false\"==\"true\"?2:1,o={\"ak.v\":\"39\",\"ak.cp\":\"813429\",\"ak.ai\":parseInt(\"714072\",10),\"ak.ol\":\"0\",\"ak.cr\":6,\"ak.ipv\":4,\"ak.proto\":\"http/1.1\",\"ak.rid\":\"42f37e70\",\"ak.r\":48094,\"ak.a2\":n,\"ak.m\":\"\",\"ak.n\":\"essl\",\"ak.bpcip\":\"68.154.116.0\",\"ak.cport\":47144,\"ak.gh\":\"23.52.15.38\",\"ak.quicv\":\"\",\"ak.tlsv\":\"tls1.3\",\"ak.0rtt\":\"\",\"ak.0rtt.ed\":\"\",\"ak.csrc\":\"-\",\"ak.acc\":\"bbr\",\"ak.t\":\"1763601795\",\"ak.ak\":\"hOBiQwZUYzCg5VSAfCLimQ==1KuD+BZ6RBjwSPJBkZsuFdM+0eofFp84GQM4XDApq8X0xskrTIAl5+iOKyl8wg2dCM1TIopsEpuZPbBjgw8FCeP1BB2sVdGkGlFhB192POQsprcnKq/r8HVY1b+DOlHRf+YYXBsOxviLCDzVb/RwxN8yWNCyARPKbAVyWOehnT9p1ezVRVQfLB+muyHsJ9rA6vxbWs6dxVPUeyc7PieW8MVHdmg/vPGm3AVKY1FhgJZBNIxhjC/h+lX+s0MQVKh7rXBmZVUXxRC4gRoO3GfkrKCOYY8NFmUMTK+TM/Xd03qDrVZwQMqOcbdv8z/AEJjMPN8GbbvIwlrs1rcgAEctly4TU6K5OH/IQr9ywrgkngIdzU4Ni9Ff1kmy4PiAN5tEi30ueR3RpiDH8YpFGTngxEKxkqdHRpCbtSOtiWKDmTM=\",\"ak.pv\":\"30\",\"ak.dpoabenc\":\"\",\"ak.tf\":i};if(\"\"!==t)o[\"ak.ruds\"]=t;var r={i:!1,av:function(n){var t=\"http.initiator\";if(n&&(!n[t]||\"spa_hard\"===n[t]))o[\"ak.feo\"]=void 0!==e.aFeoApplied?1:0,BOOMR.addVar(o)},rv:function(){var e=[\"ak.bpcip\",\"ak.cport\",\"ak.cr\",\"ak.csrc\",\"ak.gh\",\"ak.ipv\",\"ak.m\",\"ak.n\",\"ak.ol\",\"ak.proto\",\"ak.quicv\",\"ak.tlsv\",\"ak.0rtt\",\"ak.0rtt.ed\",\"ak.r\",\"ak.acc\",\"ak.t\",\"ak.tf\"];BOOMR.removeVar(e)}};BOOMR.plugins.AK={akVars:o,akDNSPreFetchDomain:a,init:function(){if(!r.i){var e=BOOMR.subscribe;e(\"before_beacon\",r.av,null,null),e(\"onbeacon\",r.rv,null,null),r.i=!0}return this},is_complete:function(){return!0}}}}()}(window);",
+              "@_onload": "document._boomrl();"
+            },
+            "#text": "!function(e){var n=\"https://s.go-mpulse.net/boomerang/\";if(\"False\"==\"True\")e.BOOMR_config=e.BOOMR_config||{},e.BOOMR_config.PageParams=e.BOOMR_config.PageParams||{},e.BOOMR_config.PageParams.pci=!0,n=\"https://s2.go-mpulse.net/boomerang/\";if(window.BOOMR_API_key=\"BK9MD-NAPZQ-PFTWM-2CATF-Q959S\",function(){function e(){if(!o){var e=document.createElement(\"script\");e.id=\"boomr-scr-as\",e.src=window.BOOMR.url,e.async=!0,i.parentNode.appendChild(e),o=!0}}function t(e){o=!0;var n,t,a,r,d=document,O=window;if(window.BOOMR.snippetMethod=e?\"if\":\"i\",t=function(e,n){var t=d.createElement(\"script\");t.id=n||\"boomr-if-as\",t.src=window.BOOMR.url,BOOMR_lstart=(new Date).getTime(),e=e||d.body,e.appendChild(t)},!window.addEventListener&&window.attachEvent&&navigator.userAgent.match(/MSIE [67]\\./))return window.BOOMR.snippetMethod=\"s\",void t(i.parentNode,\"boomr-async\");a=document.createElement(\"IFRAME\"),a.src=\"about:blank\",a.title=\"\",a.role=\"presentation\",a.loading=\"eager\",r=(a.frameElement||a).style,r.width=0,r.height=0,r.border=0,r.display=\"none\",i.parentNode.appendChild(a);try{O=a.contentWindow,d=O.document.open()}catch(_){n=document.domain,a.src=\"javascript:var d=document.open();d.domain='\"+n+\"';void(0);\",O=a.contentWindow,d=O.document.open()}if(n)d._boomrl=function(){this.domain=n,t()},d.write(\""
+          }
+        ],
+        "body": {
+          "noscript": [
+            {
+              "iframe": {
+                "@_src": "//www.googletagmanager.com/ns.html?id=GTM-NBPRLN",
+                "@_height": "0",
+                "@_width": "0",
+                "@_style": "display:none;visibility:hidden"
+              }
+            },
+            {
+              "iframe": {
+                "@_src": "//www.googletagmanager.com/ns.html?id=GTM-PK76DS",
+                "@_height": "0",
+                "@_width": "0",
+                "@_style": "display:none;visibility:hidden"
+              }
+            }
+          ],
+          "script": [
+            "(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':\nnew Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],\nj=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=\n'//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);\n})(window,document,'script','dataLayer','GTM-NBPRLN');",
+            "(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','GTM-PK76DS');",
+            {
+              "@_src": "/static_extra/pc/js/main.js"
+            },
+            {
+              "@_type": "text/javascript",
+              "@_src": "/GZ-_9/MiwO0/vHQDM_/iMH6/3z9kJpt6V2Swpc/AhYufSc/AU9/-fAQ0eXM"
+            }
+          ],
+          "div": [
+            {
+              "meta": {
+                "@_name": "format-detection",
+                "@_content": "telephone=no"
+              },
+              "div": {
+                "div": {
+                  "h1": {
+                    "a": {
+                      "img": {
+                        "@_src": "/static_extra/pc/images/logo_boatrace1.png",
+                        "@_width": "181",
+                        "@_height": "32",
+                        "@_alt": "BOAT RACE"
+                      },
+                      "@_href": "/"
+                    },
+                    "@_class": "header_logo"
+                  },
+                  "@_class": "header_inner"
+                },
+                "@_class": "header"
+              },
+              "@_class": "l-header",
+              "@_role": "banner"
+            },
+            {
+              "style": ".footerNav1_title_noLink{\n            color: #fff;\n\t\t    font-weight: bold;\n        }",
+              "p": [
+                {
+                  "a": {
+                    "i": [
+                      {
+                        "@_class": "is-phone1"
+                      },
+                      {
+                        "@_class": "is-arrow3"
+                      }
+                    ],
+                    "#text": "スマートフォン版へ",
+                    "@_class": "btn is-type9_1",
+                    "@_href": "https://www.boatrace.jp/owsp/sp/site/index.html"
+                  },
+                  "@_class": "h-alignC",
+                  "@_id": "dyn-link-to-smartphone",
+                  "@_style": "display: none"
+                },
+                {
+                  "a": {
+                    "#text": "PAGE TOP",
+                    "@_href": "#header",
+                    "@_class": "js-smoothScroll"
+                  },
+                  "@_class": "footerPageTop"
+                }
+              ],
+              "div": [
+                {
+                  "div": {
+                    "div": [
+                      {
+                        "p": [
+                          {
+                            "a": {
+                              "#text": "■ボートレースを知る楽しむ",
+                              "@_href": "/owpc/pc/site/enjoy/index.html"
+                            },
+                            "@_class": "footerNav1_title"
+                          },
+                          {
+                            "#text": "■レーススケジュール",
+                            "@_class": "footerNav1_title footerNav1_title_noLink"
+                          }
+                        ],
+                        "ul": [
+                          {
+                            "li": [
+                              {
+                                "a": {
+                                  "#text": "本日のレース",
+                                  "@_href": "/owpc/pc/race/index"
+                                }
+                              },
+                              {
+                                "a": {
+                                  "#text": "本日の払戻金一覧",
+                                  "@_href": "/owpc/pc/race/pay"
+                                }
+                              },
+                              {
+                                "a": {
+                                  "#text": "月間スケジュール",
+                                  "@_href": "/owpc/pc/race/monthlyschedule"
+                                }
+                              },
+                              {
+                                "a": {
+                                  "#text": "SG・PG1スケジュール",
+                                  "@_href": "/owpc/pc/race/gradesch?hcd=01"
+                                }
+                              },
+                              {
+                                "a": {
+                                  "#text": "G1・G2スケジュール",
+                                  "@_href": "/owpc/pc/race/gradesch?hcd=02"
+                                }
+                              },
+                              {
+                                "a": {
+                                  "#text": "G3スケジュール",
+                                  "@_href": "/owpc/pc/race/gradesch?hcd=03"
+                                }
+                              }
+                            ],
+                            "@_class": "footerNav1_navs"
+                          },
+                          {
+                            "li": [
+                              {
+                                "a": {
+                                  "#text": "ヴィーナスシリーズ",
+                                  "@_href": "/owpc/pc/race/gradesch?hcd=04"
+                                }
+                              },
+                              {
+                                "a": {
+                                  "#text": "ルーキーシリーズ",
+                                  "@_href": "/owpc/pc/race/gradesch?hcd=05"
+                                }
+                              },
+                              {
+                                "a": {
+                                  "#text": "マスターズリーグ",
+                                  "@_href": "/owpc/pc/race/gradesch?hcd=06"
+                                }
+                              },
+                              {
+                                "a": {
+                                  "#text": "メディア情報",
+                                  "@_href": "/owpc/pc/extra/race/telecast/tv_radio/index.html"
+                                }
+                              }
+                            ],
+                            "@_class": "footerNav1_navs"
+                          }
+                        ],
+                        "@_class": "footerNav1_unit is-type2"
+                      },
+                      {
+                        "p": [
+                          {
+                            "#text": "■データファイル",
+                            "@_class": "footerNav1_title footerNav1_title_noLink"
+                          },
+                          {
+                            "#text": "■レース場・チケットショップ",
+                            "@_class": "footerNav1_title footerNav1_title_noLink"
+                          }
+                        ],
+                        "ul": [
+                          {
+                            "li": [
+                              {
+                                "a": {
+                                  "#text": "ボートレーサー検索",
+                                  "@_href": "/owpc/pc/data/racersearch/index"
+                                }
+                              },
+                              {
+                                "a": {
+                                  "#text": "ボートレース場データ",
+                                  "@_href": "/owpc/pc/extra/data/stadium/index.html"
+                                }
+                              },
+                              {
+                                "a": {
+                                  "#text": "SG・PG1・G1記録集",
+                                  "@_href": "/owpc/pc/data/record/index"
+                                }
+                              },
+                              {
+                                "a": {
+                                  "#text": "高配当ベスト10",
+                                  "@_href": "/owpc/pc/data/kohaimonth"
+                                }
+                              },
+                              {
+                                "a": {
+                                  "#text": "優勝レーサー一覧",
+                                  "@_href": "/owpc/pc/data/yusyo"
+                                }
+                              },
+                              {
+                                "a": {
+                                  "#text": "ダウンロード・他",
+                                  "@_href": "/owpc/pc/extra/data/download.html"
+                                }
+                              }
+                            ],
+                            "@_class": "footerNav1_navs"
+                          },
+                          {
+                            "li": [
+                              {
+                                "a": {
+                                  "#text": "ボートレース場",
+                                  "@_href": "/owpc/pc/site/place/stadium/index.html"
+                                }
+                              },
+                              {
+                                "a": {
+                                  "#text": "チケットショップ",
+                                  "@_href": "/owpc/pc/site/place/ticket_shop/index.html"
+                                }
+                              }
+                            ],
+                            "@_class": "footerNav1_navs"
+                          }
+                        ],
+                        "@_class": "footerNav1_unit is-type3"
+                      },
+                      {
+                        "p": {
+                          "#text": "■テレボート",
+                          "@_class": "footerNav1_title footerNav1_title_noLink"
+                        },
+                        "ul": {
+                          "li": [
+                            {
+                              "a": {
+                                "#text": "ネット投票会員登録",
+                                "@_href": "/bosyu/pc/apply/"
+                              }
+                            },
+                            {
+                              "a": {
+                                "#text": "各種サービス",
+                                "@_href": "/owpc/pc/extra/tb/service.html"
+                              }
+                            },
+                            {
+                              "a": {
+                                "#text": "マイページ",
+                                "@_href": "/owpc/pc/teleboat/mypage"
+                              }
+                            },
+                            {
+                              "a": {
+                                "#text": "投票結果",
+                                "@_href": "/owpc/pc/teleboat/vresultsearch"
+                              }
+                            },
+                            {
+                              "a": {
+                                "#text": "ログイン情報をお忘れの方",
+                                "@_href": "/owpc/pc/extra/login_about/forget.html"
+                              }
+                            },
+                            {
+                              "a": {
+                                "#text": "お客様情報の照会・変更",
+                                "@_href": "/owpc/pc/extra/tb/support/procedure1.html"
+                              }
+                            },
+                            {
+                              "a": {
+                                "#text": "FAQ・お問い合わせ",
+                                "@_href": "/owpc/pc/extra/tb/support/faq.html"
+                              }
+                            },
+                            {
+                              "a": {
+                                "#text": "テレボート会員限定キャンペーン",
+                                "@_href": "/extent/pc/campaign/index.php"
+                              }
+                            },
+                            {
+                              "a": {
+                                "#text": "テレボートリンク",
+                                "@_href": "/owpc/pc/extra/tb/support/tblink/index.html"
+                              }
+                            }
+                          ],
+                          "@_class": "footerNav1_navs"
+                        },
+                        "@_class": "footerNav1_unit is-type4"
+                      }
+                    ],
+                    "@_class": "footerNav1_inner"
+                  },
+                  "@_class": "footerNav1"
+                },
+                {
+                  "div": {
+                    "ul": {
+                      "li": [
+                        {
+                          "a": {
+                            "#text": "本サイトについて",
+                            "@_href": "/owpc/pc/extra/about.html"
+                          }
+                        },
+                        {
+                          "a": {
+                            "#text": "サイトポリシー",
+                            "@_href": "/owpc/pc/extra/policy.html"
+                          }
+                        },
+                        {
+                          "a": {
+                            "#text": "プライバシーポリシー",
+                            "@_href": "/owpc/pc/extra/privacy.html"
+                          }
+                        },
+                        {
+                          "a": {
+                            "#text": "サイトマップ",
+                            "@_href": "/owpc/pc/extra/sitemap.html"
+                          }
+                        },
+                        {
+                          "a": {
+                            "#text": "ご意見・ご要望",
+                            "@_href": "/owpc/pc/support/opinion"
+                          }
+                        },
+                        {
+                          "a": {
+                            "#text": "ボートレース関係団体",
+                            "@_href": "/owpc/pc/extra/relation/index.html"
+                          }
+                        },
+                        {
+                          "a": {
+                            "#text": "メールマガジン購読",
+                            "@_href": "/owpc/pc/extra/mailmag/index.html"
+                          }
+                        },
+                        {
+                          "a": {
+                            "#text": "テレボートリンク",
+                            "@_href": "/owpc/pc/extra/tb/support/tblink/index.html"
+                          }
+                        }
+                      ],
+                      "@_class": "footerNav2_links"
+                    },
+                    "div": {
+                      "div": [
+                        {
+                          "@_id": "fb-root"
+                        },
+                        {
+                          "@_class": "fb-like",
+                          "@_data-href": "/",
+                          "@_data-layout": "button_count",
+                          "@_data-action": "like",
+                          "@_data-show-faces": "true",
+                          "@_data-share": "false"
+                        }
+                      ],
+                      "script": "(function(d, s, id) {\n\t\t\t\t\t\tvar js, fjs = d.getElementsByTagName(s)[0];\n\t\t\t\t\t\tif (d.getElementById(id))\n\t\t\t\t\t\t\treturn;\n\t\t\t\t\t\tjs = d.createElement(s);\n\t\t\t\t\t\tjs.id = id;\n\t\t\t\t\t\tjs.src = \"//connect.facebook.net/ja_JP/sdk.js#xfbml=1&version=v2.5\";\n\t\t\t\t\t\tfjs.parentNode.insertBefore(js, fjs);\n\t\t\t\t\t})(document, 'script', 'facebook-jssdk');",
+                      "@_class": "footerNav2_facebook"
+                    },
+                    "@_class": "footerNav2_inner"
+                  },
+                  "@_class": "footerNav2"
+                },
+                {
+                  "p": [
+                    {
+                      "a": {
+                        "img": {
+                          "@_src": "/static_extra/pc/images/logo_boatrace1.png",
+                          "@_width": "234",
+                          "@_height": "41",
+                          "@_alt": ""
+                        },
+                        "@_href": "/"
+                      },
+                      "@_class": "footer_logo"
+                    },
+                    {
+                      "#text": "COPYRIGHT © BOAT RACE OFFICIAL WEB ALL\n\t\t\tRIGHTS RESERVED.",
+                      "@_class": "footer_copy"
+                    }
+                  ],
+                  "@_class": "footer"
+                }
+              ],
+              "@_class": "l-footer is-type2",
+              "@_role": "contentinfo"
+            }
+          ],
+          "main": {
+            "div": {
+              "div": {
+                "div": {
+                  "div": [
+                    {
+                      "h2": {
+                        "span": {
+                          "#text": "予期せぬエラーが発生しました。",
+                          "@_class": "heading1_mainLabel"
+                        },
+                        "@_class": "heading1_title"
+                      },
+                      "@_class": "heading1"
+                    },
+                    {
+                      "div": {
+                        "div": {
+                          "div": {
+                            "p": [
+                              {
+                                "br": "",
+                                "#text": "申し訳ありません。予期せぬエラーが発生しました。誠にお手数をおかけしますが、ログイン画面より再度ログインして頂きますようお願いいたします。"
+                              },
+                              "下記のリンクからログインページへお進みください。"
+                            ],
+                            "@_class": "text"
+                          },
+                          "p": {
+                            "a": {
+                              "i": {
+                                "@_class": "is-arrow1"
+                              },
+                              "#text": "ログインページ",
+                              "@_href": "/owpc/pc/login",
+                              "@_class": "btn is-type1_5"
+                            },
+                            "@_class": "h-alignC h-mt40"
+                          },
+                          "ul": {
+                            "li": [
+                              {
+                                "a": {
+                                  "span": "トップページへ",
+                                  "@_href": "/",
+                                  "@_class": "textLinks2_link"
+                                }
+                              },
+                              {
+                                "a": {
+                                  "span": "インターネット投票へ",
+                                  "@_href": "https://ib.mbrace.or.jp/",
+                                  "@_class": "textLinks2_link"
+                                }
+                              }
+                            ],
+                            "@_class": "textLinks2 is-inline is-borderTop"
+                          },
+                          "@_class": "grid_unit"
+                        },
+                        "@_class": "grid is-type4 h-clear"
+                      },
+                      "@_class": "contentsFrame1_inner"
+                    }
+                  ],
+                  "@_class": "contentsFrame1"
+                },
+                "@_class": "l-mainInner"
+              },
+              "@_class": "l-mainWrap is-type1"
+            },
+            "@_class": "l-main"
+          }
+        },
+        "@_id": "TOTHP010A_1"
+      },
+      "@_xmlns": "http://www.w3.org/1999/xhtml"
+    }
+  }
+}
