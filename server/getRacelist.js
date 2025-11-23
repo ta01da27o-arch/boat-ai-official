@@ -1,29 +1,42 @@
 // server/getRacelist.js
-import axios from "axios";
 import * as cheerio from "cheerio";
+import { safeGet, wait } from "./fetch_utils.js";
 
-export async function fetchRacelist(jcd, date) {
-  const url = `https://www.boatrace.jp/owpc/pc/race/racelist?jcd=${jcd}&hd=${date}`;
+/**
+ * レース一覧を取得する（ブロック回避 + retry + ランダム待機）
+ */
+export async function fetchRacelist(jcd, dateStr) {
+  const url = `https://www.boatrace.jp/owpc/pc/race/racelist?jcd=${jcd}&hd=${dateStr}`;
   console.log(`🌊 racelist: ${url}`);
 
-  const res = await axios.get(url, {
-    headers: { "User-Agent": "Mozilla/5.0" }
-  });
+  let html;
+  try {
+    const res = await safeGet(url);   // axios → safeGet に置換（retry付き）
+    html = res.data;
+  } catch (err) {
+    console.log(`⚠ racelist 取得失敗 jcd=${jcd} : ${err.message}`);
+    throw err;
+  }
 
-  if (res.headers["content-type"]?.includes("xml") || res.data.startsWith("<?xml")) {
+  // XML → 非開催
+  if (html.startsWith("<?xml") || html.includes("<!DOCTYPE xml")) {
     console.log(`⚠ 非開催: jcd=${jcd}`);
     return [];
   }
 
-  const $ = cheerio.load(res.data);
-  const result = [];
+  const $ = cheerio.load(html);
+  const list = [];
 
+  // racecard リンク抽出
   $("a").each((_, el) => {
     const href = $(el).attr("href");
     if (href && href.includes("racecard")) {
-      result.push("https://www.boatrace.jp" + href);
+      list.push("https://www.boatrace.jp" + href);
     }
   });
 
-  return result;
+  // ランダム待機（2〜6秒：ブロック回避）
+  await wait(2000 + Math.random() * 4000);
+
+  return list;
 }
