@@ -1,8 +1,8 @@
-name: Fetch BoatRace Data
+name: Fetch Boat Race Data
 
 on:
   schedule:
-    - cron: "0 */3 * * *"  # 3時間ごと
+    - cron: "30 7 * * *"
   workflow_dispatch:
 
 jobs:
@@ -10,23 +10,24 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repo
+        uses: actions/checkout@v4
 
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: 20
 
-      - name: Install Dependencies
-        run: npm install
+      - name: Install deps
+        run: npm ci
 
-      - name: Run Fetch
-        run: node server/fetch_all.js
+      - name: Run fetcher
+        run: npm run fetch
 
       - name: Commit & Push
         run: |
-          git config --local user.name "github-actions"
-          git config --local user.email "actions@github.com"
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
           git add .
-          git commit -m "update data" || echo "no changes"
+          git commit -m "Auto-update race data" || echo "Nothing to commit"
           git push
