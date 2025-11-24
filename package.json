@@ -3,13 +3,12 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "part1": "node server/fetch_part1.js",
-    "part2": "node server/fetch_part2.js",
-    "part3": "node server/fetch_part3.js"
+    "fetch": "node server/fetch_all.js"
   },
   "dependencies": {
     "axios": "^1.7.4",
     "cheerio": "^1.0.0",
-    "fs-extra": "^11.2.0"
+    "fs-extra": "^11.2.0",
+    "fast-xml-parser": "^4.3.3"
   }
 }
