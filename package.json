@@ -1,13 +1,13 @@
 {
-  "name": "boat-data-fetcher",
+  "name": "boat-ai-fetcher",
   "version": "1.0.0",
   "type": "module",
   "scripts": {
     "fetch": "node server/fetch_all.js"
   },
   "dependencies": {
-    "axios": "^1.7.4",
-    "fast-xml-parser": "^4.3.4",
-    "fs-extra": "^11.2.0"
+    "axios": "^1.6.8",
+    "fast-xml-parser": "^4.3.5",
+    "fs-extra": "^11.1.1"
   }
 }
