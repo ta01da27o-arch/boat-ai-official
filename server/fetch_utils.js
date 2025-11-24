@@ -1,50 +1,38 @@
 import axios from "axios";
+import fs from "fs-extra";
 import { XMLParser } from "fast-xml-parser";
+import path from "path";
+import { fileURLToPath } from "url";
 
-export const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
-export const axiosClient = axios.create({
-  headers: {
-    "User-Agent":
-      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0 Safari/537.36",
-    "Accept-Language": "ja,en-US;q=0.9,en;q=0.8",
-  },
-  timeout: 15000,
+const parser = new XMLParser({
+  ignoreAttributes: false,
+  attributeNamePrefix: "",
 });
 
-// retry付き安全GET
-export async function safeGet(url, retry = 3) {
+/**
+ * XML API を取得 → JSON に変換して返す
+ */
+export async function fetchXmlApi(url) {
   try {
-    return await axiosClient.get(url);
-  } catch (err) {
-    if (retry <= 0) throw err;
-    console.log(`⚠ retry (${retry}) → ${url}`);
-    await wait(3000 + Math.random() * 5000);
-    return safeGet(url, retry - 1);
-  }
-}
+    const res = await axios.get(url, { timeout: 15000 });
+    const xml = res.data;
 
-// API(XML)取得
-export async function fetchHeatsApi(date) {
-  const url = `https://www.boatrace.jp/owpc/pc/m_api/replay?hd=${date}`;
-  console.log(`🔥 fetchHeatsApi: ${url}`);
-  try {
-    const res = await safeGet(url);
-    if (res.data?.startsWith("<?xml")) {
-      return { type: "xml", data: res.data };
-    } else if (typeof res.data === "object") {
-      return { type: "json", data: res.data };
-    } else {
-      return { type: "unknown", data: res.data };
-    }
+    return parser.parse(xml);
   } catch (err) {
-    console.log(`⚠ fetchHeatsApi failed: ${err}`);
+    console.error("❌ fetchXmlApi error:", err.message);
     return null;
   }
 }
 
-// XML → JSON変換
-export function parseXmlToJson(xml) {
-  const parser = new XMLParser({ ignoreAttributes: false, attributeNamePrefix: "" });
-  return parser.parse(xml);
+/**
+ * JSON を server/data に保存
+ */
+export async function saveJson(date, data) {
+  const savePath = path.join(__dirname, "data", `${date}.json`);
+  await fs.ensureDir(path.dirname(savePath));
+  await fs.writeJSON(savePath, data, { spaces: 2 });
+  console.log(`💾 保存完了: ${savePath}`);
 }

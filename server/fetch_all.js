@@ -1,60 +1,55 @@
-import fs from "fs";
-import path from "path";
-import { fileURLToPath } from "url";
-import { fetchHeatsApi, parseXmlToJson, wait } from "./fetch_utils.js";
+import { fetchXmlApi, saveJson } from "./fetch_utils.js";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const OUT_DIR = path.join(__dirname, "data");
-if (!fs.existsSync(OUT_DIR)) fs.mkdirSync(OUT_DIR, { recursive: true });
+/**
+ * 指定日付のレースデータを取得
+ */
+async function fetchDay(date) {
+  console.log(`\n📅 取得日：${date}`);
 
-function getDate(offset = 0) {
-  const d = new Date(Date.now() + offset * 86400000);
-  return d.toISOString().slice(0, 10).replace(/-/g, "");
-}
+  const apiUrl = `https://www.boatrace.jp/owpc/pc/m_api/replay?hd=${date}`;
+  console.log(`🔥 fetchHeatsApi: ${apiUrl}`);
 
-async function processDay(dateStr) {
-  console.log(`\n📅 取得日：${dateStr}`);
-  const result = { date: dateStr, venues: [] };
+  const xmlJson = await fetchXmlApi(apiUrl);
 
-  const apiRes = await fetchHeatsApi(dateStr);
-  if (!apiRes) {
-    console.log("⚠ API取得失敗");
-    return result;
+  if (!xmlJson) {
+    console.log("❌ API 取得失敗");
+    return;
   }
 
-  if (apiRes.type === "xml") {
-    console.log("⚠ API は XML を返しました（パースして保存）");
-    const parsed = parseXmlToJson(apiRes.data);
-    result.venues = parsed?.result?.replay || [];
-  } else if (apiRes.type === "json") {
-    console.log("✅ API(JSON) 取得成功");
-    result.venues = apiRes.data?.venues || [];
-  } else {
-    console.log("ℹ APIは未知形式");
-    result.raw = apiRes.data;
-  }
+  console.log("⚠ API は XML を返しました（パースして保存）");
 
-  // JSON保存
-  const filename = path.join(OUT_DIR, `${dateStr}.json`);
-  fs.writeFileSync(filename, JSON.stringify(result, null, 2), "utf-8");
-  console.log(`💾 保存完了: ${filename}`);
+  const finalData = {
+    date,
+    raw: xmlJson,
+  };
 
-  return result;
+  await saveJson(date, finalData);
 }
 
+/**
+ * 実行部：今日 + 前日
+ */
 async function main() {
-  const today = getDate(0);
-  const yesterday = getDate(-1);
+  const today = new Date();
+  const yyyy = today.getFullYear();
+  const mm = String(today.getMonth() + 1).padStart(2, "0");
+  const dd = String(today.getDate()).padStart(2, "0");
 
-  await processDay(today);
-  await wait(1000); // 少し待機
-  await processDay(yesterday);
+  const todayStr = `${yyyy}${mm}${dd}`;
+
+  // 前日
+  const yDate = new Date(today);
+  yDate.setDate(yDate.getDate() - 1);
+  const yyyyy = yDate.getFullYear();
+  const ymm = String(yDate.getMonth() + 1).padStart(2, "0");
+  const ydd = String(yDate.getDate()).padStart(2, "0");
+
+  const yesterdayStr = `${yyyyy}${ymm}${ydd}`;
+
+  await fetchDay(todayStr);
+  await fetchDay(yesterdayStr);
 
   console.log("\n✨ 全日データ取得完了");
 }
 
-main().catch((e) => {
-  console.error("FATAL:", e);
-  process.exit(1);
-});
+main();
