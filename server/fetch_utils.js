@@ -27,7 +27,7 @@ export async function safeGet(url, retry = 3) {
   }
 }
 
-// --- ★ 追加: API（決まり手・展示リプレイなど） ---
+// --- ★ API（決まり手・展示リプレイなど） ---
 export async function fetchHeatsApi(date) {
   const url = `https://www.boatrace.jp/owpc/pc/m_api/replay?hd=${date}`;
   console.log(`🔥 fetchHeatsApi: ${url}`);
@@ -76,12 +76,3 @@ export function parseXmlToJson(xmlText) {
     return null;
   }
 }
-
-// --- ★ export 一覧 ---
-export {
-  fetchHeatsApi,
-  fetchRacelistHTML,
-  parseRacelistHTML,
-  fetchRaceDetailHTML,
-  parseXmlToJson,
-};
