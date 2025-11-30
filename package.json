@@ -3,10 +3,10 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "fetch:today": "node server/fetch_today.js"
+    "fetch": "node server/fetch_today.js"
   },
   "dependencies": {
-    "axios": "^1.6.0",
+    "axios": "^1.6.7",
     "fast-xml-parser": "^4.3.2",
     "fs-extra": "^11.2.0"
   }
