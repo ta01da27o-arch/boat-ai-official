@@ -3,11 +3,14 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "fetch": "node server/fetch_today.js"
+    "fetch-all": "node server/fetch_all.js",
+    "install-browsers": "npx playwright install --with-deps"
   },
   "dependencies": {
-    "axios": "^1.6.7",
-    "fast-xml-parser": "^4.3.2",
-    "fs-extra": "^11.2.0"
+    "axios": "^1.6.6",
+    "cheerio": "^1.0.0-rc.12",
+    "fast-xml-parser": "^4.2.4",
+    "fs-extra": "^11.1.1",
+    "playwright": "^1.39.2"
   }
 }
