@@ -1,34 +1,35 @@
-name: Fetch Today Race Data
+name: Fetch Boat Race Data
 
 on:
   workflow_dispatch:
   schedule:
-    - cron: "0 0 * * *"  # 毎日9:00 JST（0:00 UTC）
+    - cron: "5 14 * * *" # 毎日 14:05 UTC (必要なら調整)
 
 jobs:
   fetch:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout
+      - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
+      - name: Use Node.js 20
         uses: actions/setup-node@v4
         with:
           node-version: 20
 
-      - name: Install Dependencies
-        run: npm install
+      - name: Install dependencies
+        run: npm ci
 
-      - name: Fetch Today Data
-        run: npm run fetch
+      - name: Install Playwright browsers
+        run: npm run install-browsers
 
-      - name: Commit and Push
+      - name: Run fetch
+        run: npm run fetch-all
+
+      - name: Commit & push data (optional)
         run: |
-          git config user.name "github-actions"
-          git config user.email "actions@github.com"
-          git add server/data/*.json
-          git commit -m "Update race data"
-          git push
-        continue-on-error: true
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add server/data || true
+          git commit -m "update race data" || echo "no changes"
+          git push || echo "push failed"
