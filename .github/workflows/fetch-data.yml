@@ -3,11 +3,12 @@ name: Fetch Boat Race Data
 on:
   workflow_dispatch:
   schedule:
-    - cron: "5 14 * * *" # 毎日 14:05 UTC (必要なら調整)
+    - cron: "5 14 * * *" # 毎日 14:05 UTC（JST 23:05）
 
 jobs:
   fetch:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -21,12 +22,12 @@ jobs:
         run: npm ci
 
       - name: Install Playwright browsers
-        run: npm run install-browsers
+        run: npx playwright install --with-deps
 
       - name: Run fetch
-        run: npm run fetch-all
+        run: node server/fetch_all.js
 
-      - name: Commit & push data (optional)
+      - name: Commit & push data
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
